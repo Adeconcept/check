@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { AnalyzeUrlForm } from "@/components/analyze-url-form";
 
+const HERO_UNION_URL = "https://www.figma.com/api/mcp/asset/3a3d6c9f-e2dd-4295-a1ff-2c4f79d28257";
+
 type ScreenDefinition = {
   slug: string;
   name: string;
@@ -209,7 +211,7 @@ function Menu({ loggedIn = false, topActionLabel = "Get started" }: { loggedIn?:
 function HeroOrbit() {
   return (
     <div className="hero-orbit" aria-hidden="true">
-      <div className="hero-line" />
+      <img alt="" className="hero-union-image" src={HERO_UNION_URL} />
     </div>
   );
 }

@@ -149,14 +149,8 @@ async function fetchEmbedPreview(url: URL) {
     throw new Error(data.error);
   }
 
-  const headResponse = await fetch(url, {
-    method: "HEAD",
-    redirect: "follow",
-    cache: "no-store"
-  }).catch(() => null);
-
   return {
-    fileSizeLabel: formatFileSize(headResponse?.headers.get("content-length") ?? null),
+    fileSizeLabel: "Size unavailable",
     sourceUrl: url.toString(),
     thumbnailUrl: data.thumbnail_url || placeholderThumbnail(data.title || data.author_name || fileNameFromUrl(url)),
     title: data.title || data.author_name || fileNameFromUrl(url)

@@ -169,37 +169,11 @@ input {
   z-index: 1;
 }
 
-.hero-orbit::before,
-.hero-orbit::after {
-  content: "";
-  position: absolute;
-}
-
-.hero-orbit::before {
-  left: 80px;
-  right: 80px;
-  top: 0;
-  bottom: 110px;
-  border: 2px solid var(--hero-ring-dark);
-}
-
-.hero-orbit::after {
-  left: 0;
-  right: 0;
-  top: 210px;
-  height: 160px;
-  border: 2px solid var(--hero-ring);
-  border-radius: 50%;
-  transform: rotate(-7deg);
-}
-
-.hero-line {
-  position: absolute;
-  left: 162px;
-  top: 250px;
-  width: 2px;
-  height: 260px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.05));
+.hero-union-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .hero-copy {
@@ -222,21 +196,23 @@ input {
 }
 
 .hero-title {
-  max-width: 998px;
+  width: 998px;
+  max-width: 100%;
   margin: 0;
   font-family: var(--font-display), sans-serif;
-  font-size: clamp(44px, 6vw, 64px);
+  font-size: 64px;
   line-height: 64px;
   font-weight: 800;
   letter-spacing: -0.04em;
 }
 
 .hero-subtitle {
-  max-width: 684px;
+  width: 684px;
+  max-width: 100%;
   margin: 0;
   color: var(--muted);
-  font-size: clamp(18px, 2vw, 20px);
-  line-height: 1.6;
+  font-size: 20px;
+  line-height: 32px;
 }
 
 .input-stack {
@@ -389,6 +365,10 @@ input {
 
 .upload-meta {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
 }
 
 .upload-name {
@@ -432,7 +412,7 @@ input {
   position: absolute;
   left: 63px;
   top: 888px;
-  width: 1312px;
+  width: min(1312px, calc(100vw - 126px));
   height: 72px;
   z-index: 2;
 }
@@ -470,6 +450,7 @@ input {
   background: var(--panel);
   padding: 16px 24px;
   width: 677px;
+  max-width: calc(100vw - 400px);
   height: 72px;
   justify-content: center;
 }
@@ -1477,40 +1458,52 @@ input {
     height: 540px;
   }
 
-  .hero-orbit::before {
-    left: 50px;
-    right: 50px;
-    bottom: 60px;
-  }
-
-  .hero-orbit::after {
-    top: 190px;
-    height: 120px;
-  }
-
-  .hero-line {
-    left: 80px;
-    height: 190px;
-  }
-
   .hero-copy {
     margin-top: 120px;
     gap: 40px;
   }
 
+  .hero-title {
+    font-size: 44px;
+    line-height: 44px;
+  }
+
+  .hero-subtitle {
+    font-size: 18px;
+    line-height: 30px;
+  }
+
   .page-footer {
     position: relative;
-    inset: auto;
-    margin: 56px 20px 24px;
+    left: auto;
+    top: auto;
+    width: calc(100vw - 40px);
+    margin: 56px auto 24px;
+    height: auto;
+    display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 20px;
   }
 
   .bottom-nav {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
     width: 100%;
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
+    max-width: none;
+  }
+
+  .footer-year,
+  .socials {
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
   }
 
   .nav-item {

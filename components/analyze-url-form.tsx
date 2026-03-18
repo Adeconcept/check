@@ -93,6 +93,21 @@ type VideoPreview = {
   title: string;
 };
 
+function formatPreviewTitle(title: string, sourceUrl: string) {
+  const url = new URL(sourceUrl);
+  const rawTitle = title.trim();
+  const extensionMatch = url.pathname.toLowerCase().match(/\.([a-z0-9]{2,5})$/i);
+  const extension = extensionMatch ? `.${extensionMatch[1]}` : "";
+  const maxBaseLength = 15;
+  const normalizedTitle = rawTitle || url.hostname;
+
+  if (normalizedTitle.length <= maxBaseLength) {
+    return `${normalizedTitle}${extension}`;
+  }
+
+  return `${normalizedTitle.slice(0, maxBaseLength)}...${extension}`;
+}
+
 function isVideoPreview(value: unknown): value is VideoPreview {
   if (!value || typeof value !== "object") {
     return false;
@@ -206,7 +221,7 @@ export function AnalyzeUrlForm() {
             <span className="upload-thumb-play" aria-hidden="true" />
           </div>
           <div className="upload-meta">
-            <p className="upload-name">{preview.title}</p>
+            <p className="upload-name">{formatPreviewTitle(preview.title, preview.sourceUrl)}</p>
             <p className="upload-size">{preview.fileSizeLabel}</p>
           </div>
           <button
