@@ -114,7 +114,7 @@ export function CheckyScreen({ mode }: CheckyScreenProps) {
     return (
       <BaseScreen>
         <LandingHero mode="home" />
-        <Footer year="2024" />
+        <Footer />
         <div className="overlay modal-offset">
           <AuthModal variant={mode} />
         </div>
@@ -125,7 +125,7 @@ export function CheckyScreen({ mode }: CheckyScreenProps) {
   return (
     <BaseScreen>
       <LandingHero mode={mode} />
-      <Footer year={mode === "home" ? "2025" : "2024"} />
+      <Footer />
     </BaseScreen>
   );
 }
@@ -175,7 +175,7 @@ function BaseScreen({
       <Menu loggedIn={loggedIn} topActionLabel={topActionLabel} />
       {!loggedIn && <HeroOrbit />}
       {children}
-      {!hideFooter && <Footer year={compactFooter ? "2024" : "2024"} compact={compactFooter} loggedIn={loggedIn} />}
+      {!hideFooter && <Footer compact={compactFooter} loggedIn={loggedIn} />}
     </div>
   );
 }
@@ -258,17 +258,20 @@ function UploadCard() {
 }
 
 function Footer({
-  year,
   compact = false,
   loggedIn = false
 }: {
-  year: string;
   compact?: boolean;
   loggedIn?: boolean;
 }) {
   return (
     <footer className="page-footer">
-      <div className="footer-year">{year}</div>
+      <div className="footer-year">
+        <span className="footer-copyright" aria-hidden="true">
+          <CopyrightIcon />
+        </span>
+        <span>2026</span>
+      </div>
       <nav className="bottom-nav" aria-label="Primary">
         <Link className="nav-item active" href="/">
           <span className="nav-glyph" aria-hidden="true">
@@ -322,6 +325,15 @@ function SocialLinks() {
         <InstagramIcon />
       </span>
     </div>
+  );
+}
+
+function CopyrightIcon() {
+  return (
+    <svg fill="none" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M9.8 10.4C9.3 10.87 8.72 11.1 8.05 11.1C6.57 11.1 5.4 9.81 5.4 8C5.4 6.19 6.57 4.9 8.05 4.9C8.72 4.9 9.3 5.13 9.8 5.6" stroke="currentColor" strokeLinecap="round" strokeWidth="1.4" />
+    </svg>
   );
 }
 

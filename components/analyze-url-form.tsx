@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import Image from "next/image";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 const MAX_URL_LENGTH = 2048;
 const VIDEO_HOSTS = [
@@ -86,13 +86,82 @@ function validateVideoUrl(value: string) {
   return { isValid: true, sanitized: parsed.toString(), reason: "" };
 }
 
-export function AnalyzeUrlForm() {
-  const router = useRouter();
-  const [inputValue, setInputValue] = useState("");
-  const [submittedValue, setSubmittedValue] = useState("");
+type VideoPreview = {
+  fileSizeLabel: string;
+  sourceUrl: string;
+  thumbnailUrl: string;
+  title: string;
+};
 
-  const validation = validateVideoUrl(inputValue);
-  const isSubmitted = submittedValue.length > 0;
+function isVideoPreview(value: unknown): value is VideoPreview {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+
+  return (
+    typeof candidate.title === "string" &&
+    typeof candidate.thumbnailUrl === "string" &&
+    typeof candidate.fileSizeLabel === "string" &&
+    typeof candidate.sourceUrl === "string"
+  );
+}
+
+export function AnalyzeUrlForm() {
+  const [inputValue, setInputValue] = useState("");
+  const [preview, setPreview] = useState<VideoPreview | null>(null);
+  const [previewError, setPreviewError] = useState("");
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+
+  const validation = useMemo(() => validateVideoUrl(inputValue), [inputValue]);
+
+  useEffect(() => {
+    if (!validation.isValid) {
+      setPreview(null);
+      setPreviewError(inputValue ? validation.reason : "");
+      setIsLoadingPreview(false);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    async function fetchPreview() {
+      setIsLoadingPreview(true);
+      setPreviewError("");
+
+      try {
+        const response = await fetch(`/api/video-preview?url=${encodeURIComponent(validation.sanitized)}`, {
+          signal: controller.signal
+        });
+
+        const data = (await response.json()) as { error?: string } | VideoPreview;
+
+        if (!response.ok || !isVideoPreview(data)) {
+          setPreview(null);
+          setPreviewError("error" in data ? data.error ?? "Unable to fetch video metadata." : "Unable to fetch video metadata.");
+          return;
+        }
+
+        setPreview(data);
+      } catch (error) {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        setPreview(null);
+        setPreviewError(error instanceof Error ? error.message : "Unable to fetch video metadata.");
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingPreview(false);
+        }
+      }
+    }
+
+    fetchPreview();
+
+    return () => controller.abort();
+  }, [inputValue, validation]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -100,15 +169,11 @@ export function AnalyzeUrlForm() {
     if (!validation.isValid) {
       return;
     }
-
-    setInputValue(validation.sanitized);
-    setSubmittedValue(validation.sanitized);
-    router.push(`/screens/home-link-upload?url=${encodeURIComponent(validation.sanitized)}`);
   }
 
   return (
     <form className="analyze-form" noValidate onSubmit={handleSubmit}>
-      <div className="analyze-bar" style={isSubmitted ? { borderColor: "#da5678" } : undefined}>
+      <div className="analyze-bar" style={preview ? { borderColor: "#da5678" } : undefined}>
         <input
           aria-label="Video URL"
           autoCapitalize="none"
@@ -119,7 +184,6 @@ export function AnalyzeUrlForm() {
           maxLength={MAX_URL_LENGTH}
           name="videoUrl"
           onChange={(event) => {
-            setSubmittedValue("");
             setInputValue(sanitizeVideoUrlCandidate(event.target.value));
           }}
           placeholder="Paste a video url"
@@ -132,12 +196,31 @@ export function AnalyzeUrlForm() {
         </button>
       </div>
       <div aria-live="polite" className="analyze-feedback">
-        {!inputValue
-          ? "Only supported video links are allowed."
-          : validation.isValid
-            ? "Valid video link."
-            : validation.reason}
+        {!inputValue ? "Only supported video links are allowed." : isLoadingPreview ? "Fetching video metadata..." : preview ? "Video metadata loaded." : previewError}
       </div>
+      {preview ? (
+        <div className="upload-card">
+          <div className="upload-thumb">
+            <Image alt="" className="upload-thumb-image" fill sizes="48px" src={preview.thumbnailUrl} unoptimized />
+            <span className="upload-thumb-overlay" />
+            <span className="upload-thumb-play" aria-hidden="true" />
+          </div>
+          <div className="upload-meta">
+            <p className="upload-name">{preview.title}</p>
+            <p className="upload-size">{preview.fileSizeLabel}</p>
+          </div>
+          <button
+            className="close-icon"
+            onClick={() => {
+              setInputValue("");
+              setPreview(null);
+              setPreviewError("");
+            }}
+            type="button"
+            aria-label="Clear video preview"
+          />
+        </div>
+      ) : null}
     </form>
   );
 }

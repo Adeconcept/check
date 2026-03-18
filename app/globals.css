@@ -14,11 +14,11 @@
   --shadow: 0 0 0 1px rgba(255, 255, 255, 0.02);
   --hero-ring: rgba(255, 255, 255, 0.95);
   --hero-ring-dark: rgba(75, 79, 111, 0.3);
-  --gradient: linear-gradient(180deg, #da5678 5.45%, #9f18a3 94.72%);
+  --gradient: linear-gradient(218.467deg, #da5678 5.4539%, #9f18a3 94.718%);
   --gradient-soft: linear-gradient(135deg, rgba(218, 86, 120, 0.28), rgba(159, 24, 163, 0.14));
-  --font-display: "Avenir Next", "Segoe UI", sans-serif;
-  --font-body: "Inter", "Segoe UI", sans-serif;
-  --font-brand: "Georgia", "Times New Roman", serif;
+  --font-display: "Clash Display Variable", "Clash Display", "Outfit", "Avenir Next", sans-serif;
+  --font-body: "Satoshi", "Inter", "Segoe UI", sans-serif;
+  --font-brand: "Chokokutai", "Times New Roman", serif;
 }
 
 * {
@@ -84,6 +84,7 @@ input {
   gap: 4px;
   font-family: var(--font-brand), cursive;
   font-size: 16px;
+  line-height: 24px;
 }
 
 .brand-mark,
@@ -142,6 +143,7 @@ input {
   font-family: var(--font-display), sans-serif;
   font-size: 16px;
   font-weight: 700;
+  line-height: 24px;
 }
 
 .wallet-chip {
@@ -206,7 +208,7 @@ input {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 48px;
+  gap: 64px;
   width: min(998px, calc(100vw - 48px));
   margin: 112px auto 0;
   text-align: center;
@@ -224,7 +226,7 @@ input {
   margin: 0;
   font-family: var(--font-display), sans-serif;
   font-size: clamp(44px, 6vw, 64px);
-  line-height: 1;
+  line-height: 64px;
   font-weight: 800;
   letter-spacing: -0.04em;
 }
@@ -263,7 +265,8 @@ input {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: min(452px, 100%);
+  width: 452px;
+  max-width: 100%;
 }
 
 .analyze-input {
@@ -273,6 +276,7 @@ input {
   background: transparent;
   color: var(--text);
   outline: none;
+  font-family: "Inter", var(--font-body), sans-serif;
   font-size: 14px;
   line-height: 20px;
 }
@@ -282,10 +286,10 @@ input {
 }
 
 .analyze-feedback {
-  min-height: 18px;
+  min-height: 16px;
   color: var(--muted);
   font-size: 12px;
-  line-height: 18px;
+  line-height: 16px;
   text-align: left;
 }
 
@@ -317,6 +321,7 @@ input {
   font-family: var(--font-display), sans-serif;
   font-size: 12px;
   font-weight: 600;
+  line-height: 18px;
 }
 
 .gradient-button.large {
@@ -341,6 +346,8 @@ input {
   align-items: center;
   gap: 8px;
   padding: 16px;
+  width: 452px;
+  max-width: 100%;
 }
 
 .upload-thumb {
@@ -353,22 +360,31 @@ input {
     linear-gradient(135deg, #4b3c34, #77756e 45%, #232018);
 }
 
-.upload-thumb::before {
-  content: "";
+.upload-thumb-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(43, 43, 43, 0.6);
+}
+
+.upload-thumb-play {
   position: absolute;
   inset: 14px;
   border: 1px solid rgba(255, 255, 255, 0.72);
   border-radius: 999px;
 }
 
-.upload-thumb::after {
+.upload-thumb-play::after {
   content: "";
   position: absolute;
-  left: 22px;
-  top: 18px;
+  left: 8px;
+  top: 4px;
   border-left: 8px solid rgba(255, 255, 255, 0.9);
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
+}
+
+.upload-thumb-image {
+  object-fit: cover;
 }
 
 .upload-meta {
@@ -415,27 +431,47 @@ input {
 .page-footer {
   position: absolute;
   left: 63px;
-  right: 63px;
-  bottom: 64px;
+  top: 888px;
+  width: 1312px;
+  height: 72px;
   z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .footer-year {
+  position: absolute;
+  left: 0;
+  top: 31px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-display), sans-serif;
   font-size: 16px;
   font-weight: 700;
+  line-height: 24px;
+}
+
+.footer-copyright {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bottom-nav {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
   gap: 40px;
   border: 1px solid var(--line);
   background: var(--panel);
   padding: 16px 24px;
+  width: 677px;
+  height: 72px;
+  justify-content: center;
 }
 
 .nav-item {
@@ -448,6 +484,7 @@ input {
   font-family: var(--font-display), sans-serif;
   font-size: 16px;
   font-weight: 500;
+  line-height: 24px;
 }
 
 .nav-item.active {
@@ -456,6 +493,9 @@ input {
 }
 
 .socials {
+  position: absolute;
+  right: 0;
+  top: 27px;
   display: inline-flex;
   align-items: center;
   gap: 16px;
