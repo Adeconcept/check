@@ -1,0 +1,4 @@
+interface:
+  display_name: "Checky App Builder"
+  short_description: "Plan and build the Checky detection app"
+  default_prompt: "Use $checky-app-builder to plan, implement, and verify the Checky web app for AI-generated media detection."
