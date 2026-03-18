@@ -209,9 +209,17 @@ function Menu({ loggedIn = false, topActionLabel = "Get started" }: { loggedIn?:
 function HeroOrbit() {
   return (
     <div className="hero-orbit" aria-hidden="true">
-      <div className="hero-union-rect" />
-      <div className="hero-union-ellipse" />
-      <div className="hero-union-line" />
+      <svg className="hero-union-svg" fill="none" viewBox="0 0 960 759">
+        <rect height="649" stroke="rgba(46,49,79,0.5)" strokeWidth="2" width="670" x="128" y="0" />
+        <ellipse cx="461" cy="312" rx="341" ry="75" stroke="rgba(255,255,250,0.95)" strokeWidth="2" transform="rotate(-7 461 312)" />
+        <rect fill="url(#unionLine)" height="261" width="2" x="128" y="251" />
+        <defs>
+          <linearGradient id="unionLine" x1="129" x2="129" y1="251" y2="512" gradientUnits="userSpaceOnUse">
+            <stop stopColor="rgba(255,255,250,0.95)" />
+            <stop offset="1" stopColor="rgba(255,255,250,0.08)" />
+          </linearGradient>
+        </defs>
+      </svg>
     </div>
   );
 }
@@ -268,45 +276,49 @@ function Footer({
 }) {
   return (
     <footer className="page-footer">
-      <div className="footer-year">
-        <span className="footer-copyright" aria-hidden="true">
-          <CopyrightIcon />
-        </span>
-        <span>2026</span>
+      <div className="footer-left">
+        <div className="footer-year">
+          <span className="footer-copyright" aria-hidden="true">
+            <CopyrightIcon />
+          </span>
+          <span>2026</span>
+        </div>
       </div>
-      <nav className="bottom-nav" aria-label="Primary">
-        <Link className="nav-item active" href="/">
-          <span className="nav-glyph" aria-hidden="true">
-            <HomeIcon />
-          </span>
-          <span>Home</span>
-        </Link>
-        <Link className="nav-item" href="/screens">
-          <span className="nav-glyph" aria-hidden="true">
-            <DocumentIcon />
-          </span>
-          <span>How it works</span>
-        </Link>
-        <Link className="nav-item" href="/screens/report">
-          <span className="nav-glyph" aria-hidden="true">
-            <DocumentIcon />
-          </span>
-          <span>Case Studies</span>
-        </Link>
-        <Link className="nav-item" href="/screens/verify-email">
-          <span className="nav-glyph" aria-hidden="true">
-            <ChatIcon />
-          </span>
-          <span>Help</span>
-        </Link>
-        {compact || loggedIn ? (
-          <button className="nav-item" type="button" aria-label="More">
+      <div className="footer-center">
+        <nav className="bottom-nav" aria-label="Primary">
+          <Link className="nav-item active" href="/">
             <span className="nav-glyph" aria-hidden="true">
-              <MenuIcon />
+              <HomeIcon />
             </span>
-          </button>
-        ) : null}
-      </nav>
+            <span>Home</span>
+          </Link>
+          <Link className="nav-item" href="/screens">
+            <span className="nav-glyph" aria-hidden="true">
+              <DocumentIcon />
+            </span>
+            <span>How it works</span>
+          </Link>
+          <Link className="nav-item" href="/screens/report">
+            <span className="nav-glyph" aria-hidden="true">
+              <DocumentIcon />
+            </span>
+            <span>Case Studies</span>
+          </Link>
+          <Link className="nav-item" href="/screens/verify-email">
+            <span className="nav-glyph" aria-hidden="true">
+              <ChatIcon />
+            </span>
+            <span>Help</span>
+          </Link>
+          {compact || loggedIn ? (
+            <button className="nav-item" type="button" aria-label="More">
+              <span className="nav-glyph" aria-hidden="true">
+                <MenuIcon />
+              </span>
+            </button>
+          ) : null}
+        </nav>
+      </div>
       {!compact && !loggedIn ? <SocialLinks /> : null}
     </footer>
   );
