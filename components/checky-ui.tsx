@@ -65,7 +65,7 @@ export async function CheckyScreen({
 
   if (mode === "analyzing") {
     return (
-      <BaseScreen hideFooter hideMenu loggedIn>
+      <BaseScreen hideFooter hideMenu>
         <AnalyzeProgressScreen sourceUrl={sourceUrl} />
       </BaseScreen>
     );
@@ -75,7 +75,7 @@ export async function CheckyScreen({
     const report = sourceUrl ? await getReportData(sourceUrl) : null;
 
     return (
-      <BaseScreen loggedIn compactFooter hideFooter>
+      <BaseScreen compactFooter hideFooter>
         <ReportScreen report={report} shareOpen={mode === "report-share"} sourceUrl={sourceUrl} />
       </BaseScreen>
     );
@@ -781,34 +781,50 @@ function ReportScreen({
 
 function ConfidenceMeter({ confidenceRate }: { confidenceRate: number }) {
   const normalizedValue = Number.isFinite(confidenceRate) ? Math.min(100, Math.max(0, confidenceRate)) : 0;
-  const angle = -90 + normalizedValue * 1.8;
+  const centerX = 117.5;
+  const centerY = 118;
+  const startAngle = 190;
+  const endAngle = 350;
+  const angle = startAngle + (endAngle - startAngle) * (normalizedValue / 100);
   const radians = (angle * Math.PI) / 180;
-  const centerX = 131;
-  const centerY = 112;
-  const needleLength = 83;
+  const needleLength = 66;
   const needleX = centerX + Math.cos(radians) * needleLength;
   const needleY = centerY + Math.sin(radians) * needleLength;
+  const segments = Array.from({ length: 32 }, (_, index) => {
+    const segmentStart = startAngle + ((endAngle - startAngle) / 31) * index;
+    const segmentEnd = segmentStart + 3.2;
+    const outerRadius = 81;
+    const innerRadius = 65;
+    const startRadians = (segmentStart * Math.PI) / 180;
+    const endRadians = (segmentEnd * Math.PI) / 180;
+    const x1 = centerX + Math.cos(startRadians) * innerRadius;
+    const y1 = centerY + Math.sin(startRadians) * innerRadius;
+    const x2 = centerX + Math.cos(endRadians) * outerRadius;
+    const y2 = centerY + Math.sin(endRadians) * outerRadius;
+    const stroke = index < 13 ? "#f12d28" : index < 23 ? "#7d6516" : "#1f8a2f";
+
+    return {
+      path: `M ${x1.toFixed(2)} ${y1.toFixed(2)} L ${x2.toFixed(2)} ${y2.toFixed(2)}`,
+      stroke
+    };
+  });
 
   return (
     <div className="confidence">
-      <svg className="confidence-svg" viewBox="0 0 263 182" aria-hidden="true">
-        <defs>
-          <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#f12d28" />
-            <stop offset="50%" stopColor="#c98c1c" />
-            <stop offset="100%" stopColor="#1dd736" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M33 145 A98 98 0 0 1 230 145"
-          fill="none"
-          stroke="url(#gauge-gradient)"
-          strokeWidth="18"
-          strokeLinecap="round"
-          strokeDasharray="2 8"
-        />
+      <svg className="confidence-svg" viewBox="0 0 235 182" aria-hidden="true">
+        {segments.map((segment) => (
+          <path
+            key={segment.path}
+            d={segment.path}
+            fill="none"
+            stroke={segment.stroke}
+            strokeLinecap="round"
+            strokeOpacity="0.92"
+            strokeWidth="3.6"
+          />
+        ))}
         <line x1={centerX} y1={centerY} x2={needleX} y2={needleY} stroke="#353535" strokeWidth="3" strokeLinecap="round" />
-        <circle cx="131" cy="112" r="6" fill="#8d8d8d" />
+        <circle cx={centerX} cy={centerY} r="6.5" fill="#53535c" />
       </svg>
       <div className="confidence-center">
         <div className="confidence-value">{normalizedValue}%</div>

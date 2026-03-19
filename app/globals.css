@@ -136,7 +136,7 @@ input {
   justify-content: center;
   min-width: 160px;
   height: 44px;
-  padding: 0 22px;
+  padding: 0 24px;
   border: 1px solid var(--line);
   background: transparent;
   color: var(--text);
@@ -184,7 +184,7 @@ input {
   align-items: center;
   gap: 64px;
   width: min(998px, calc(100vw - 48px));
-  margin: 112px auto 0;
+  margin: 126px auto 0;
   text-align: center;
 }
 
@@ -202,7 +202,7 @@ input {
   font-family: var(--font-display), sans-serif;
   font-size: 64px;
   line-height: 64px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.04em;
 }
 
@@ -211,8 +211,10 @@ input {
   max-width: 100%;
   margin: 0;
   color: var(--muted);
+  font-family: "Satoshi", var(--font-body), sans-serif;
   font-size: 20px;
   line-height: 32px;
+  font-weight: 500;
 }
 
 .input-stack {
@@ -252,9 +254,10 @@ input {
   background: transparent;
   color: var(--text);
   outline: none;
-  font-family: "Inter", var(--font-body), sans-serif;
+  font-family: "Satoshi", var(--font-body), sans-serif;
   font-size: 14px;
   line-height: 20px;
+  font-weight: 400;
 }
 
 .analyze-input::placeholder {
@@ -382,8 +385,10 @@ input {
 .upload-size {
   margin: 2px 0 0;
   color: var(--muted);
+  font-family: "Inter", var(--font-body), sans-serif;
   font-size: 12px;
   line-height: 16px;
+  font-weight: 400;
 }
 
 .close-icon,
@@ -461,12 +466,14 @@ input {
 .bottom-nav {
   display: inline-flex;
   align-items: center;
-  gap: 28px;
+  gap: 24px;
   border: 1px solid var(--line);
   background: var(--panel);
   padding: 16px 24px;
   height: 72px;
   justify-content: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .nav-item {
@@ -477,9 +484,11 @@ input {
   border-radius: 999px;
   color: var(--text);
   font-family: var(--font-display), sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   line-height: 24px;
+  letter-spacing: 0.1px;
+  flex: 0 0 auto;
 }
 
 .nav-item.active {
@@ -917,7 +926,7 @@ input {
 .report-shell {
   position: relative;
   z-index: 2;
-  padding: 116px 63px 96px 64px;
+  padding: 100px 63px 96px 64px;
 }
 
 .report-grid {
@@ -935,15 +944,15 @@ input {
 
 .report-top {
   display: grid;
-  grid-template-columns: 263px 193px 193px;
-  column-gap: 123px;
+  grid-template-columns: 235px 193px 193px;
+  column-gap: 70px;
   align-items: start;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .confidence {
   position: relative;
-  width: 263px;
+  width: 235px;
   height: 182px;
 }
 
@@ -955,7 +964,7 @@ input {
 .confidence-center {
   position: absolute;
   left: 50%;
-  top: 90px;
+  top: 103px;
   transform: translateX(-50%);
   text-align: center;
 }
@@ -977,31 +986,31 @@ input {
 }
 
 .confidence-axis.zero {
-  left: 42px;
-  bottom: 46px;
+  left: 18px;
+  bottom: 48px;
 }
 
 .confidence-axis.fifty {
-  left: 123px;
-  top: 28px;
+  left: 109px;
+  top: 35px;
 }
 
 .confidence-axis.hundred {
-  right: 36px;
-  bottom: 46px;
+  right: 16px;
+  bottom: 48px;
 }
 
 .confidence-label.low {
-  left: 0;
-  bottom: 0;
-  width: 70px;
+  left: -1px;
+  bottom: 12px;
+  width: 54px;
   color: var(--red);
 }
 
 .confidence-label.high {
-  right: 0;
-  bottom: 0;
-  width: 70px;
+  right: -2px;
+  bottom: 12px;
+  width: 52px;
   text-align: right;
   color: var(--green);
 }
@@ -1272,7 +1281,7 @@ input {
   font-size: 12px;
   line-height: 18px;
   font-weight: 600;
-  margin-bottom: 40px;
+  margin-bottom: 24px;
 }
 
 .report-action-button,
@@ -1323,10 +1332,10 @@ input {
 }
 
 .meta-row {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 8px;
   align-items: flex-start;
-  flex-wrap: wrap;
 }
 
 .meta-key {
@@ -1339,10 +1348,13 @@ input {
 }
 
 .meta-value {
+  display: block;
   font-family: var(--font-display), sans-serif;
   font-size: 14px;
   line-height: 24px;
   font-weight: 700;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .meta-link {

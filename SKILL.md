@@ -17,7 +17,9 @@ Follow this execution model for non-trivial work:
 - Re-plan immediately if implementation reveals a bad assumption or the plan stops matching reality.
 - Fix reported bugs directly instead of asking the user to drive the debugging process.
 - Always commit and push after every working feature.
+- Every time you push, first check the codebase for errors and fix them before pushing.
 - Stop after every complete feature development, and ask for permission to continue to the next stage.
+- Match the Figma design typography, color, size, weight, and shade as closely as possible on every implementation, not just layout.
 - Prefer the simplest complete solution that removes root causes without expanding scope.
 
 If the environment supports delegation, use subagents for bounded parallel work such as repository exploration, API research, or test investigation. Keep ownership narrow and do not offload the immediate blocking coding step.
