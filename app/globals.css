@@ -848,6 +848,8 @@ input {
   position: relative;
   width: 350px;
   height: 350px;
+  animation: breathe 3.8s ease-in-out infinite;
+  transform-origin: center;
 }
 
 .loading-rings span {
@@ -878,6 +880,17 @@ input {
 
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(0.975);
+  }
+
+  50% {
+    transform: scale(1.03);
   }
 }
 
