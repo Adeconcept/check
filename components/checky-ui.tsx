@@ -65,7 +65,7 @@ export async function CheckyScreen({
 
   if (mode === "analyzing") {
     return (
-      <BaseScreen loggedIn>
+      <BaseScreen hideFooter hideMenu loggedIn>
         <AnalyzeProgressScreen sourceUrl={sourceUrl} />
       </BaseScreen>
     );
@@ -151,17 +151,19 @@ function BaseScreen({
   loggedIn = false,
   topActionLabel = "Get started",
   compactFooter = false,
-  hideFooter = false
+  hideFooter = false,
+  hideMenu = false
 }: {
   children: React.ReactNode;
   loggedIn?: boolean;
   topActionLabel?: string;
   compactFooter?: boolean;
   hideFooter?: boolean;
+  hideMenu?: boolean;
 }) {
   return (
     <div className="screen">
-      <Menu loggedIn={loggedIn} topActionLabel={topActionLabel} />
+      {!hideMenu && <Menu loggedIn={loggedIn} topActionLabel={topActionLabel} />}
       {!loggedIn && <HeroOrbit />}
       {children}
       {!hideFooter && <Footer compact={compactFooter} loggedIn={loggedIn} />}

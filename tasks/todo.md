@@ -1,10 +1,12 @@
-# Analyze Loading Animation Plan
+# Homepage Hint And Analyze Screen Shell Plan
 
-- [x] Review the current analyzing screen animation styles.
-- [x] Add a subtle zoom-in and zoom-out pulse while preserving the existing ring spin motion.
-- [x] Build the project to verify the animation update, then commit and push the completed feature.
+- [x] Review the homepage input feedback and analyzing screen shell behavior.
+- [x] Hide the homepage hint unless the user enters an invalid URL.
+- [x] Remove the top nav and bottom footer from the analyzing screen.
+- [x] Build the project to verify the shell updates, then commit and push the completed feature.
 
 # Review
 
-- Added a container-level pulse animation to the analyzing rings so the loader now gently zooms in and out while each ring continues spinning.
-- Verified the animation update with `npm run build`, which completed successfully.
+- The homepage input now stays visually quiet when the field is empty or valid, and only shows feedback for invalid input states.
+- The analyzing route now renders only the loading experience without the shared top nav or footer.
+- Verified the shell updates with `npm run build`, which completed successfully.

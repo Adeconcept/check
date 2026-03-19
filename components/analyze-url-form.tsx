@@ -127,7 +127,7 @@ export function AnalyzeUrlForm() {
         </button>
       </div>
       <div aria-live="polite" className="analyze-feedback">
-        {!inputValue ? "Only supported video links are allowed." : isLoadingPreview ? "Fetching video metadata..." : preview ? "Video metadata loaded." : previewError}
+        {validation.isValid ? "" : inputValue ? validation.reason || previewError : ""}
       </div>
       {preview ? (
         <div className="upload-card">
