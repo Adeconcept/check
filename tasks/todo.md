@@ -1,12 +1,11 @@
-# Homepage Upload Card Spacing Plan
+# Report Details Styling Plan
 
-- [x] Compare the homepage upload-state spacing and close control against the Figma design.
-- [x] Update the homepage form structure so the URL field and fetched upload card match the Figma spacing.
-- [x] Replace the generic close button with a design-matched cancel control.
-- [x] Build the project to verify the homepage upload-state updates, then commit and push the completed feature.
+- [x] Compare the current report/details page against the Figma upload-done design.
+- [x] Tighten the report page spacing, typography, and weights to match the design more closely.
+- [x] Build the project to verify the report styling updates, then commit and push the completed feature.
 
 # Review
 
-- Updated the homepage form so the fetched upload card sits 16px below the URL field, matching the Figma upload-state spacing.
-- Replaced the generic rotated-plus close control with a dedicated circled cancel icon closer to the Figma `highlight_off` asset.
-- Verified the homepage upload-state updates with `npm run build`, which completed successfully.
+- Updated the report page shell, stat blocks, section widths, metadata typography, and action buttons to more closely match the Figma upload-done frame.
+- Reduced the back button styling to the smaller report-specific treatment and shifted labels to the lighter Satoshi-style text used in the design.
+- Verified the report styling updates with `npm run build`, which completed successfully.

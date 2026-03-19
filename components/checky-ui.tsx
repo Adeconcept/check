@@ -632,7 +632,7 @@ function ReportScreen({
   return (
     <>
       <main className="report-shell">
-        <Link className="outline-button" href="/">
+        <Link className="report-back-button" href="/">
           Back to home
         </Link>
 
@@ -718,10 +718,10 @@ function ReportScreen({
                 <h2 className="section-title">User Guidance</h2>
                 <p className="section-text">{report?.guidance ?? "Try analyzing another supported video URL."}</p>
                 <div className="cta-row">
-                  <button className="outline-button inverse" type="button">
+                  <button className="report-action-button report-action-button-inverse" type="button">
                     Report video
                   </button>
-                  <Link className="outline-button" href={shareHref}>
+                  <Link className="report-action-button" href={shareHref}>
                     Share report
                   </Link>
                 </div>
