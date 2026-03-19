@@ -284,7 +284,7 @@ function Footer({
           <span>2026</span>
         </div>
       </div>
-      <div className="footer-center">
+      <div className="footer-nav-wrap">
         <nav className="bottom-nav" aria-label="Primary">
           <Link className="nav-item active" href="/">
             <span className="nav-glyph" aria-hidden="true">

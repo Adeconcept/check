@@ -418,7 +418,7 @@ input {
 }
 
 .footer-left,
-.footer-center {
+.footer-nav-wrap {
   position: absolute;
 }
 
@@ -427,10 +427,13 @@ input {
   top: 0;
 }
 
-.footer-center {
+.footer-nav-wrap {
   left: 50%;
   top: 0;
   transform: translateX(-50%);
+  width: 677px;
+  display: flex;
+  justify-content: center;
 }
 
 .footer-year {
@@ -459,7 +462,6 @@ input {
   border: 1px solid var(--line);
   background: var(--panel);
   padding: 16px 24px;
-  width: 677px;
   height: 72px;
   justify-content: center;
 }
@@ -1502,7 +1504,7 @@ input {
   }
 
   .footer-left,
-  .footer-center {
+  .footer-nav-wrap {
     position: relative;
     left: auto;
     top: auto;
