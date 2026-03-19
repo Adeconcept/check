@@ -1,11 +1,7 @@
 import { notFound } from "next/navigation";
-import { CheckyScreen, getScreenDefinitions, isValidMode } from "@/components/checky-ui";
+import { CheckyScreen, isValidMode } from "@/components/checky-ui";
 
-export function generateStaticParams() {
-  return getScreenDefinitions()
-    .filter((definition) => definition.slug)
-    .map((definition) => ({ slug: definition.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function ScreenPage({
   params,

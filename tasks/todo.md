@@ -1,14 +1,10 @@
-# Homepage Typography Fidelity Plan
+# Search Params Hydration Fix Plan
 
-- [x] Compare the homepage typography, color, size, and shade against the Figma home frame.
-- [x] Tighten the homepage text and nav/footer typography to match the design more closely.
-- [x] Add a project rule requiring typography, color, size, and shade fidelity for future implementations.
-- [x] Keep the homepage footer nav on one line, restore the `Get started` top action for non-authenticated flows, tighten the report shell layout, and replace the confidence graph with a design-matched gauge.
-- [x] Build the project to verify the homepage/report fidelity updates, then commit and push the completed feature.
+- [x] Trace the hydration mismatch to the route and component boundary that depends on request-specific URL params.
+- [x] Convert the screen route to dynamic rendering so `searchParams`-driven screens are not statically prerendered with mismatched HTML.
+- [x] Build the project to verify the hydration fix, then commit and push the completed feature.
 
 # Review
 
-- Tightened the homepage typography, spacing, and nav text treatment against the Figma home frame and recorded a new project rule to preserve typography/color/size/shade fidelity on future implementations.
-- Fixed the homepage footer nav so it stays on a single line and restored the top-right `Get started` action for non-logged-in flows instead of always showing a wallet chip.
-- Pulled the report page content closer to the header, stabilized metadata row layout to avoid overlap, and replaced the generic confidence arc with a segmented assurance-style gauge closer to the Figma design.
-- Verified the combined updates with `npm run build`, which completed successfully.
+- Converted `/screens/[slug]` from static prerendering to dynamic rendering so `report` and `analyzing` screens now render against the live request URL and its query params.
+- Verified the hydration fix with `npm run build`, and the build output now shows `/screens/[slug]` as `Dynamic` instead of `SSG`.
