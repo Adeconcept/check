@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AnalyzeUrlForm } from "@/components/analyze-url-form";
+import { HomepageAnalyzeSection } from "@/components/homepage-analyze-section";
 
 type ScreenDefinition = {
   slug: string;
@@ -235,7 +235,7 @@ function LandingHero({ mode }: { mode: "home" | "home-link-upload" }) {
       </div>
 
       <div className="input-stack">
-        {mode === "home" ? <AnalyzeUrlForm /> : <StaticAnalyzeBar />}
+        {mode === "home" ? <HomepageAnalyzeSection /> : <StaticAnalyzeBar />}
 
         {mode === "home-link-upload" ? <UploadCard /> : null}
       </div>
@@ -253,6 +253,7 @@ function StaticAnalyzeBar() {
     </div>
   );
 }
+
 
 function UploadCard() {
   return (
