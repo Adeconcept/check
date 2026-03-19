@@ -1,12 +1,12 @@
-# Homepage Hint And Analyze Screen Shell Plan
+# Homepage Upload Card Spacing Plan
 
-- [x] Review the homepage input feedback and analyzing screen shell behavior.
-- [x] Hide the homepage hint unless the user enters an invalid URL.
-- [x] Remove the top nav and bottom footer from the analyzing screen.
-- [x] Build the project to verify the shell updates, then commit and push the completed feature.
+- [x] Compare the homepage upload-state spacing and close control against the Figma design.
+- [x] Update the homepage form structure so the URL field and fetched upload card match the Figma spacing.
+- [x] Replace the generic close button with a design-matched cancel control.
+- [x] Build the project to verify the homepage upload-state updates, then commit and push the completed feature.
 
 # Review
 
-- The homepage input now stays visually quiet when the field is empty or valid, and only shows feedback for invalid input states.
-- The analyzing route now renders only the loading experience without the shared top nav or footer.
-- Verified the shell updates with `npm run build`, which completed successfully.
+- Updated the homepage form so the fetched upload card sits 16px below the URL field, matching the Figma upload-state spacing.
+- Replaced the generic rotated-plus close control with a dedicated circled cancel icon closer to the Figma `highlight_off` asset.
+- Verified the homepage upload-state updates with `npm run build`, which completed successfully.

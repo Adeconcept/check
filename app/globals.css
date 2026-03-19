@@ -240,7 +240,7 @@ input {
 .analyze-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
   width: 452px;
   max-width: 100%;
 }
@@ -262,11 +262,11 @@ input {
 }
 
 .analyze-feedback {
-  min-height: 16px;
   color: var(--muted);
   font-size: 12px;
   line-height: 16px;
   text-align: left;
+  margin-top: -8px;
 }
 
 .analyze-placeholder,
@@ -398,14 +398,17 @@ input {
 .close-icon {
   width: 24px;
   height: 24px;
-  color: #888;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 250, 0.64);
+  cursor: pointer;
 }
 
-.close-icon::before {
-  content: "+";
-  transform: rotate(45deg);
-  font-size: 22px;
-  line-height: 1;
+.close-icon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .page-footer {

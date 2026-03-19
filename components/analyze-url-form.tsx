@@ -126,9 +126,11 @@ export function AnalyzeUrlForm() {
           Analyze
         </button>
       </div>
-      <div aria-live="polite" className="analyze-feedback">
-        {validation.isValid ? "" : inputValue ? validation.reason || previewError : ""}
-      </div>
+      {!validation.isValid && inputValue ? (
+        <div aria-live="polite" className="analyze-feedback">
+          {validation.reason || previewError}
+        </div>
+      ) : null}
       {preview ? (
         <div className="upload-card">
           <div className="upload-thumb">
@@ -149,9 +151,21 @@ export function AnalyzeUrlForm() {
             }}
             type="button"
             aria-label="Clear video preview"
-          />
+          >
+            <CancelIcon />
+          </button>
         </div>
       ) : null}
     </form>
+  );
+}
+
+function CancelIcon() {
+  return (
+    <svg fill="none" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeOpacity="0.42" strokeWidth="1.5" />
+      <path d="M9.25 9.25L14.75 14.75" stroke="currentColor" strokeLinecap="round" strokeOpacity="0.8" strokeWidth="1.5" />
+      <path d="M14.75 9.25L9.25 14.75" stroke="currentColor" strokeLinecap="round" strokeOpacity="0.8" strokeWidth="1.5" />
+    </svg>
   );
 }
