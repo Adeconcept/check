@@ -890,6 +890,14 @@ input {
   font-weight: 600;
 }
 
+.loading-subcopy {
+  margin: -24px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+}
+
 .report-shell {
   position: relative;
   z-index: 2;
@@ -1021,6 +1029,31 @@ input {
   background:
     linear-gradient(rgba(43, 43, 43, 0.6), rgba(43, 43, 43, 0.6)),
     linear-gradient(120deg, #181818, #74684f 42%, #2b250c 72%, #0f1012);
+}
+
+.video-card-image,
+.video-card-overlay,
+.video-card-empty {
+  position: absolute;
+  inset: 0;
+}
+
+.video-card-image {
+  object-fit: cover;
+}
+
+.video-card-overlay {
+  background: linear-gradient(rgba(43, 43, 43, 0.4), rgba(43, 43, 43, 0.62));
+}
+
+.video-card-empty {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
 }
 
 .video-card::before {

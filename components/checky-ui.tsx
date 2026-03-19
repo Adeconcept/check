@@ -1,4 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
+import { analyzeVideo, type EvidenceItemData, type VideoAnalysisReport } from "@/lib/video-analysis";
+import { AnalyzeProgressScreen } from "@/components/analyze-progress-screen";
 import { HomepageAnalyzeSection } from "@/components/homepage-analyze-section";
 
 type ScreenDefinition = {
@@ -40,33 +43,6 @@ const screenDefinitions: ScreenDefinition[] = [
   { slug: "verify-email", name: "Verify your email", description: "Centered confirmation state after sign-up." }
 ];
 
-const reportEvidence = [
-  {
-    title: "Unnatural movement detected in facial features",
-    range: "01:23 to 02:45",
-    date: "Aug 12, 2023"
-  },
-  {
-    title: "Pixelation and distortion detected",
-    range: "03:12 to 04:30",
-    date: "Aug 12, 2023"
-  }
-];
-
-const comparisonEvidence = [
-  {
-    title: "Original content",
-    range: "01:23 to 02:45",
-    date: "Aug 12, 2023",
-    original: true
-  },
-  {
-    title: "Manipulated content",
-    range: "03:12 to 04:30",
-    date: "Aug 12, 2023"
-  }
-];
-
 export function getScreenDefinitions() {
   return screenDefinitions;
 }
@@ -75,19 +51,32 @@ export function isValidMode(mode: string): mode is AppMode {
   return screenDefinitions.some((definition) => definition.slug === mode);
 }
 
-export function CheckyScreen({ mode }: CheckyScreenProps) {
+function readSearchParam(value: string | string[] | undefined) {
+  return typeof value === "string" ? value : Array.isArray(value) ? value[0] ?? null : null;
+}
+
+export async function CheckyScreen({
+  mode,
+  searchParams
+}: CheckyScreenProps & {
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
+  const sourceUrl = readSearchParam(searchParams?.url);
+
   if (mode === "analyzing") {
     return (
       <BaseScreen loggedIn>
-        <AnalyzingState />
+        <AnalyzeProgressScreen sourceUrl={sourceUrl} />
       </BaseScreen>
     );
   }
 
   if (mode === "report" || mode === "report-share") {
+    const report = sourceUrl ? await getReportData(sourceUrl) : null;
+
     return (
       <BaseScreen loggedIn compactFooter hideFooter>
-        <ReportScreen shareOpen={mode === "report-share"} />
+        <ReportScreen report={report} shareOpen={mode === "report-share"} sourceUrl={sourceUrl} />
       </BaseScreen>
     );
   }
@@ -618,25 +607,26 @@ function ConnectWalletModal() {
   );
 }
 
-function AnalyzingState() {
-  return (
-    <main className="analyzing-shell">
-      <div className="loading-cluster">
-        <div className="loading-rings" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </div>
-        <div className="loading-copy">
-          <span>Analyzing content...</span>
-          <span>0%</span>
-        </div>
-      </div>
-    </main>
-  );
+async function getReportData(sourceUrl: string) {
+  try {
+    return await analyzeVideo(sourceUrl);
+  } catch {
+    return null;
+  }
 }
 
-function ReportScreen({ shareOpen }: { shareOpen: boolean }) {
+function ReportScreen({
+  report,
+  shareOpen,
+  sourceUrl
+}: {
+  report: VideoAnalysisReport | null;
+  shareOpen: boolean;
+  sourceUrl: string | null;
+}) {
+  const shareHref = sourceUrl ? `/screens/report-share?url=${encodeURIComponent(sourceUrl)}` : "/screens/report-share";
+  const hasReport = Boolean(report);
+
   return (
     <>
       <main className="report-shell">
@@ -647,52 +637,58 @@ function ReportScreen({ shareOpen }: { shareOpen: boolean }) {
         <section className="report-grid">
           <div>
             <div className="report-top">
-              <ConfidenceMeter />
+              <ConfidenceMeter confidenceRate={report?.confidenceRate ?? 0} />
               <div className="stat-pair">
                 <div className="stat-block">
                   <span className="stat-label">Status:</span>
-                  <span className="stat-value">Modified by AI</span>
+                  <span className="stat-value">{report?.riskLabel ?? "No analysis available"}</span>
                 </div>
                 <div className="stat-block">
                   <span className="stat-label">Confidence rate</span>
-                  <span className="stat-value">90%</span>
+                  <span className="stat-value">{report ? `${report.confidenceRate}%` : "Unavailable"}</span>
                 </div>
               </div>
               <div className="stat-pair">
                 <div className="stat-block">
                   <span className="stat-label">File name:</span>
-                  <span className="stat-value">Micheal Jackson said so</span>
+                  <span className="stat-value">{report?.fileName ?? "Unavailable"}</span>
                 </div>
                 <div className="stat-block">
                   <span className="stat-label">File size</span>
-                  <span className="stat-value">3.5mb</span>
+                  <span className="stat-value">{report?.fileSizeLabel ?? "Unavailable"}</span>
                 </div>
               </div>
             </div>
 
             <div className="report-section">
               <div className="video-card">
-                <div className="play-badge" aria-hidden="true" />
+                {report ? (
+                  <>
+                    <Image
+                      alt={`${report.fileName} preview`}
+                      className="video-card-image"
+                      fill
+                      priority
+                      sizes="(max-width: 1080px) 100vw, 929px"
+                      src={report.preview.thumbnailUrl}
+                      unoptimized
+                    />
+                    <div className="video-card-overlay" />
+                    <div className="play-badge" aria-hidden="true" />
+                  </>
+                ) : (
+                  <div className="video-card-empty">Unable to load report details for this video.</div>
+                )}
               </div>
 
               <div className="section-rule" />
 
               <div className="section-copy">
                 <p className="eyebrow">Verification Details</p>
-                <h2 className="section-title">Detected manipulation</h2>
+                <h2 className="section-title">{report?.detectionHeadline ?? "Analysis unavailable"}</h2>
                 <p className="section-text">
-                  Our detection system has found several manipulations in the video. The authenticity status is marked as
-                  authentic for modification with AI with a high confidence level. However, there are potential manipulations
-                  such as{" "}
-                  <strong>
-                    Face Swap, Voice Swap, Inconsistent lighting and unnatural facial movements were detected in the
-                    subject&apos;s face at multiple point, Sudden pixelation and distortion indicating potential deepfake
-                    manipulations and Object Insertion
-                  </strong>
-                  .<br />
-                  <br />
-                  There are suspicion of these manipulations in the following frames (15, 27, 42, 75, 58, 90). Please review
-                  the original and manipulated segments for a detailed analysis.
+                  {report?.detectionSummary ??
+                    "Checky could not generate a full verification report for this link. Try the original source URL or a direct video file URL."}
                 </p>
               </div>
 
@@ -700,23 +696,16 @@ function ReportScreen({ shareOpen }: { shareOpen: boolean }) {
 
               <div className="section-copy">
                 <p className="eyebrow">Visual Evidence</p>
-                <h2 className="section-title">Detected manipulation</h2>
+                <h2 className="section-title">{report?.detectionHeadline ?? "Detected manipulation"}</h2>
                 <div className="evidence-list">
-                  {reportEvidence.map((item) => (
-                    <EvidenceItem key={item.title} {...item} />
-                  ))}
+                  {report?.evidence.map((item) => <EvidenceItem key={item.title} {...item} />)}
                 </div>
                 <div className="section-copy">
                   <h3 className="section-title">Comparison</h3>
-                  <p className="section-text">
-                    Original vs manipulated: Side-by-side comparison shows discrepancies in subject&apos;s appearance and
-                    background consistency.
-                  </p>
+                  <p className="section-text">{report?.visualSummary ?? "No comparison data available."}</p>
                 </div>
                 <div className="evidence-list">
-                  {comparisonEvidence.map((item) => (
-                    <EvidenceItem key={item.title} {...item} />
-                  ))}
+                  {report?.comparisonEvidence.map((item) => <EvidenceItem key={item.title} {...item} />)}
                 </div>
               </div>
 
@@ -725,14 +714,12 @@ function ReportScreen({ shareOpen }: { shareOpen: boolean }) {
               <div className="section-copy">
                 <p className="eyebrow">What to do next</p>
                 <h2 className="section-title">User Guidance</h2>
-                <p className="section-text">
-                  This video has been flagged as manipulated. We recommend not sharing this content as it may be misleading.
-                </p>
+                <p className="section-text">{report?.guidance ?? "Try analyzing another supported video URL."}</p>
                 <div className="cta-row">
                   <button className="outline-button inverse" type="button">
                     Report video
                   </button>
-                  <Link className="outline-button" href="/screens/report-share">
+                  <Link className="outline-button" href={shareHref}>
                     Share report
                   </Link>
                 </div>
@@ -745,20 +732,16 @@ function ReportScreen({ shareOpen }: { shareOpen: boolean }) {
           <aside className="meta-sidebar">
             <MetaSection
               title="Metadata"
-              rows={[
-                ["File type:", "Mp4"],
-                ["Upload Date:", "Nov 30, 2023, 14:35 UTC"],
-                ["Uploader:", "@johnDoe123"]
-              ]}
+              rows={report?.metadataRows ?? []}
               extra={
                 <>
                   <div className="meta-row">
                     <span className="meta-key">Original source:</span>
-                    <span className="meta-value verified-pill">@johnDoe123</span>
+                    <span className="meta-value verified-pill">{report?.preview.sourceUrl ?? "Unavailable"}</span>
                   </div>
                   <div className="meta-row">
                     <span className="meta-key">Media Hash:</span>
-                    <span className="meta-value">0x4e7***87b9c</span>
+                    <span className="meta-value">{report?.mediaHash ?? "Unavailable"}</span>
                   </div>
                 </>
               }
@@ -766,25 +749,20 @@ function ReportScreen({ shareOpen }: { shareOpen: boolean }) {
 
             <MetaSection
               title="Blockchain Verification"
-              rows={[
-                ["Transaction ID:", "0x4e7***87b9c"],
-                ["Timestamp:", "July 30, 2023, 14:35 UTC"]
-              ]}
+              rows={report?.verificationRows ?? []}
               extra={
                 <div className="meta-row">
                   <span className="meta-key">Record:</span>
-                  <span className="meta-value meta-link">Explore record</span>
+                  <span className="meta-value meta-link">
+                    {report?.hasBlockchainRecord ? <Link href={report.transactionUrl}>Explore record</Link> : "No record found"}
+                  </span>
                 </div>
               }
             />
 
             <MetaSection
               title="Technical Details"
-              rows={[
-                ["AI model used:", "DeepFakeDetector v3.2"],
-                ["Detection record:", "Frame by Frame analysis using conventional networks"],
-                ["File integrity:", "Video file hash matches the stored hash"]
-              ]}
+              rows={report?.technicalRows ?? []}
             />
           </aside>
         </section>
@@ -792,14 +770,23 @@ function ReportScreen({ shareOpen }: { shareOpen: boolean }) {
 
       {shareOpen ? (
         <div className="overlay centered">
-          <ShareReportModal />
+          <ShareReportModal sourceUrl={sourceUrl} />
         </div>
       ) : null}
     </>
   );
 }
 
-function ConfidenceMeter() {
+function ConfidenceMeter({ confidenceRate }: { confidenceRate: number }) {
+  const normalizedValue = Number.isFinite(confidenceRate) ? Math.min(100, Math.max(0, confidenceRate)) : 0;
+  const angle = -90 + normalizedValue * 1.8;
+  const radians = (angle * Math.PI) / 180;
+  const centerX = 131;
+  const centerY = 112;
+  const needleLength = 83;
+  const needleX = centerX + Math.cos(radians) * needleLength;
+  const needleY = centerY + Math.sin(radians) * needleLength;
+
   return (
     <div className="confidence">
       <svg className="confidence-svg" viewBox="0 0 263 182" aria-hidden="true">
@@ -818,11 +805,11 @@ function ConfidenceMeter() {
           strokeLinecap="round"
           strokeDasharray="2 8"
         />
-        <line x1="131" y1="112" x2="214" y2="88" stroke="#353535" strokeWidth="3" strokeLinecap="round" />
+        <line x1={centerX} y1={centerY} x2={needleX} y2={needleY} stroke="#353535" strokeWidth="3" strokeLinecap="round" />
         <circle cx="131" cy="112" r="6" fill="#8d8d8d" />
       </svg>
       <div className="confidence-center">
-        <div className="confidence-value">90%</div>
+        <div className="confidence-value">{normalizedValue}%</div>
       </div>
       <span className="confidence-axis zero">0</span>
       <span className="confidence-axis fifty">50</span>
@@ -838,12 +825,7 @@ function EvidenceItem({
   range,
   date,
   original = false
-}: {
-  title: string;
-  range: string;
-  date: string;
-  original?: boolean;
-}) {
+}: EvidenceItemData) {
   return (
     <div className="evidence-item">
       <div className={`thumb-small${original ? " original" : ""}`} aria-hidden="true" />
@@ -884,7 +866,9 @@ function MetaSection({
   );
 }
 
-function ShareReportModal() {
+function ShareReportModal({ sourceUrl }: { sourceUrl: string | null }) {
+  const closeHref = sourceUrl ? `/screens/report?url=${encodeURIComponent(sourceUrl)}` : "/screens/report";
+
   return (
     <div className="modal">
       <div className="modal-body">
@@ -893,7 +877,7 @@ function ShareReportModal() {
             <h2 className="modal-title">Share this report</h2>
             <p className="modal-subtitle">Let other people know about this content</p>
           </div>
-          <Link className="icon-button close-icon" href="/screens/report" aria-label="Close share modal" />
+          <Link className="icon-button close-icon" href={closeHref} aria-label="Close share modal" />
         </div>
 
         <div className="share-icons">
@@ -904,7 +888,7 @@ function ShareReportModal() {
         </div>
 
         <div className="share-link">
-          <p className="share-link-value">https://example.com/article/social-share-modal</p>
+          <p className="share-link-value">{sourceUrl ?? "https://example.com/article/social-share-modal"}</p>
           <span className="copy-icon" aria-hidden="true">
             ⧉
           </span>

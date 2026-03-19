@@ -1,10 +1,16 @@
-# Homepage Nav Centering Plan
+# Video Analysis Flow Plan
 
-- [x] Inspect the remaining homepage nav centering issue.
-- [x] Adjust the homepage nav positioning so it is centered against the viewport, independent of the footer side blocks.
-- [x] Build the project to verify the nav centering fix and update this review with results.
+- [x] Review the current homepage, analyzing screen, report screen, and metadata endpoint.
+- [x] Add a shared analysis layer that fetches video metadata and generates a report payload for the UI.
+- [x] Wire the homepage analyze action to the analyzing route with the selected video URL.
+- [x] Replace the static analyzing screen with an animated progress flow that redirects into the populated report screen.
+- [x] Replace the static upload-done page with URL-backed verification details, evidence, metadata, and technical sections.
+- [x] Build the project to verify the full flow, then commit and push the completed feature.
 
 # Review
 
-- Moved the homepage nav into its own viewport-centered wrapper so it is centered independently from the left year block and right social block.
-- Verified the nav centering fix with `npm run build`, which completed successfully.
+- Added shared URL validation and analysis helpers so the preview endpoint and the new analysis endpoint use the same metadata pipeline.
+- The homepage analyze form now routes valid, fetched video URLs into the analyzing screen instead of stopping at the preview card.
+- Replaced the static loading screen with a progress-driven client flow that shows staged status text and redirects to the report page when analysis completes.
+- Replaced the static upload-done page with URL-backed verification details, evidence, metadata, technical details, and preserved report-share routing.
+- Verified the full feature with `npm run build`, which completed successfully.

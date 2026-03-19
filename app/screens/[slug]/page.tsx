@@ -8,15 +8,18 @@ export function generateStaticParams() {
 }
 
 export default async function ScreenPage({
-  params
+  params,
+  searchParams
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
 
   if (!isValidMode(slug)) {
     notFound();
   }
 
-  return <CheckyScreen mode={slug} />;
+  return <CheckyScreen mode={slug} searchParams={resolvedSearchParams} />;
 }

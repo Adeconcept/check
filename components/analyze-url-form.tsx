@@ -1,97 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-
-const MAX_URL_LENGTH = 2048;
-const VIDEO_HOSTS = [
-  "youtube.com",
-  "www.youtube.com",
-  "m.youtube.com",
-  "youtu.be",
-  "vimeo.com",
-  "www.vimeo.com",
-  "tiktok.com",
-  "www.tiktok.com",
-  "x.com",
-  "www.x.com",
-  "twitter.com",
-  "www.twitter.com",
-  "instagram.com",
-  "www.instagram.com",
-  "facebook.com",
-  "www.facebook.com",
-  "loom.com",
-  "www.loom.com",
-  "twitch.tv",
-  "www.twitch.tv",
-  "drive.google.com"
-];
-
-const DIRECT_VIDEO_EXTENSIONS = [".mp4", ".mov", ".m4v", ".webm", ".avi", ".mkv"];
-
-function sanitizeVideoUrlCandidate(value: string) {
-  return value.replace(/[\u0000-\u001f\u007f]+/g, "").trim().slice(0, MAX_URL_LENGTH);
-}
-
-function isDirectVideoAsset(pathname: string) {
-  const lowerPath = pathname.toLowerCase();
-
-  return DIRECT_VIDEO_EXTENSIONS.some((extension) => lowerPath.endsWith(extension));
-}
-
-function isTrustedVideoHost(hostname: string) {
-  return VIDEO_HOSTS.includes(hostname.toLowerCase());
-}
-
-function validateVideoUrl(value: string) {
-  const sanitized = sanitizeVideoUrlCandidate(value);
-
-  if (!sanitized) {
-    return { isValid: false, sanitized, reason: "" };
-  }
-
-  if (sanitized.length >= MAX_URL_LENGTH) {
-    return { isValid: false, sanitized, reason: "Link is too long." };
-  }
-
-  let parsed: URL;
-
-  try {
-    parsed = new URL(sanitized);
-  } catch {
-    return { isValid: false, sanitized, reason: "Paste a complete video URL." };
-  }
-
-  if (!["https:", "http:"].includes(parsed.protocol)) {
-    return { isValid: false, sanitized, reason: "Only http and https links are allowed." };
-  }
-
-  if (parsed.username || parsed.password) {
-    return { isValid: false, sanitized, reason: "Links with embedded credentials are not allowed." };
-  }
-
-  if (!parsed.hostname || parsed.hostname.length > 253) {
-    return { isValid: false, sanitized, reason: "Hostname is invalid." };
-  }
-
-  if (!isTrustedVideoHost(parsed.hostname) && !isDirectVideoAsset(parsed.pathname)) {
-    return {
-      isValid: false,
-      sanitized,
-      reason: "Use a supported video platform link or a direct video file URL."
-    };
-  }
-
-  return { isValid: true, sanitized: parsed.toString(), reason: "" };
-}
-
-type VideoPreview = {
-  fileSizeLabel: string;
-  sourceUrl: string;
-  thumbnailUrl: string;
-  title: string;
-};
+import type { VideoPreview } from "@/lib/video-analysis";
+import { sanitizeVideoUrlCandidate, validateVideoUrl } from "@/lib/video-url";
 
 function formatPreviewTitle(title: string, sourceUrl: string) {
   const url = new URL(sourceUrl);
@@ -124,6 +37,7 @@ function isVideoPreview(value: unknown): value is VideoPreview {
 }
 
 export function AnalyzeUrlForm() {
+  const router = useRouter();
   const [inputValue, setInputValue] = useState("");
   const [preview, setPreview] = useState<VideoPreview | null>(null);
   const [previewError, setPreviewError] = useState("");
@@ -181,9 +95,11 @@ export function AnalyzeUrlForm() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!validation.isValid) {
+    if (!validation.isValid || !preview) {
       return;
     }
+
+    router.push(`/screens/analyzing?url=${encodeURIComponent(validation.sanitized)}`);
   }
 
   return (
@@ -196,7 +112,7 @@ export function AnalyzeUrlForm() {
           autoCorrect="off"
           className={`analyze-input ${validation.isValid ? "is-valid" : ""}`}
           inputMode="url"
-          maxLength={MAX_URL_LENGTH}
+          maxLength={2048}
           name="videoUrl"
           onChange={(event) => {
             setInputValue(sanitizeVideoUrlCandidate(event.target.value));
@@ -206,7 +122,7 @@ export function AnalyzeUrlForm() {
           type="url"
           value={inputValue}
         />
-        <button className="gradient-button" disabled={!validation.isValid} type="submit">
+        <button className="gradient-button" disabled={!validation.isValid || !preview || isLoadingPreview} type="submit">
           Analyze
         </button>
       </div>
