@@ -83,7 +83,7 @@ export async function CheckyScreen({
 
   if (mode === "verify-email") {
     return (
-      <BaseScreen topActionLabel="Help?">
+      <BaseScreen topActionLabel="Help?" showHeroOrbit>
         <VerifyEmailState />
       </BaseScreen>
     );
@@ -101,7 +101,7 @@ export async function CheckyScreen({
 
   if (mode === "signup-empty" || mode === "signup-filled" || mode === "login-empty" || mode === "login-filled") {
     return (
-      <BaseScreen>
+      <BaseScreen showHeroOrbit>
         <LandingHero mode="home" />
         <Footer />
         <div className="overlay modal-offset">
@@ -112,7 +112,7 @@ export async function CheckyScreen({
   }
 
   return (
-    <BaseScreen>
+    <BaseScreen showHeroOrbit>
       <LandingHero mode={mode} />
       <Footer />
     </BaseScreen>
@@ -152,7 +152,8 @@ function BaseScreen({
   topActionLabel = "Get started",
   compactFooter = false,
   hideFooter = false,
-  hideMenu = false
+  hideMenu = false,
+  showHeroOrbit = false
 }: {
   children: React.ReactNode;
   loggedIn?: boolean;
@@ -160,11 +161,12 @@ function BaseScreen({
   compactFooter?: boolean;
   hideFooter?: boolean;
   hideMenu?: boolean;
+  showHeroOrbit?: boolean;
 }) {
   return (
     <div className="screen">
       {!hideMenu && <Menu loggedIn={loggedIn} topActionLabel={topActionLabel} />}
-      {!loggedIn && <HeroOrbit />}
+      {showHeroOrbit && <HeroOrbit />}
       {children}
       {!hideFooter && <Footer compact={compactFooter} loggedIn={loggedIn} />}
     </div>
