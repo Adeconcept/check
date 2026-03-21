@@ -3,6 +3,8 @@ import Link from "next/link";
 import { analyzeVideo, type EvidenceItemData, type VideoAnalysisReport } from "@/lib/video-analysis";
 import { AnalyzeProgressScreen } from "@/components/analyze-progress-screen";
 import { HomepageAnalyzeSection } from "@/components/homepage-analyze-section";
+import { ReportConfidenceGauge } from "@/components/report-confidence-gauge";
+import { ReportVideoPanel } from "@/components/report-video-panel";
 
 type ScreenDefinition = {
   slug: string;
@@ -641,7 +643,7 @@ function ReportScreen({
         <section className="report-grid">
           <div>
             <div className="report-top">
-              <ConfidenceMeter confidenceRate={report?.confidenceRate ?? 0} />
+              <ReportConfidenceGauge confidenceRate={report?.confidenceRate ?? 0} />
               <div className="stat-pair">
                 <div className="stat-block">
                   <span className="stat-label">Status:</span>
@@ -665,25 +667,7 @@ function ReportScreen({
             </div>
 
             <div className="report-section">
-              <div className="video-card">
-                {report ? (
-                  <>
-                    <Image
-                      alt={`${report.fileName} preview`}
-                      className="video-card-image"
-                      fill
-                      priority
-                      sizes="(max-width: 1080px) 100vw, 929px"
-                      src={report.preview.thumbnailUrl}
-                      unoptimized
-                    />
-                    <div className="video-card-overlay" />
-                    <div className="play-badge" aria-hidden="true" />
-                  </>
-                ) : (
-                  <div className="video-card-empty">Unable to load report details for this video.</div>
-                )}
-              </div>
+              <ReportVideoPanel report={report} />
 
               <div className="section-rule" />
 
@@ -778,65 +762,6 @@ function ReportScreen({
         </div>
       ) : null}
     </>
-  );
-}
-
-function ConfidenceMeter({ confidenceRate }: { confidenceRate: number }) {
-  const normalizedValue = Number.isFinite(confidenceRate) ? Math.min(100, Math.max(0, confidenceRate)) : 0;
-  const centerX = 117.5;
-  const centerY = 118;
-  const startAngle = 190;
-  const endAngle = 350;
-  const angle = startAngle + (endAngle - startAngle) * (normalizedValue / 100);
-  const radians = (angle * Math.PI) / 180;
-  const needleLength = 66;
-  const needleX = centerX + Math.cos(radians) * needleLength;
-  const needleY = centerY + Math.sin(radians) * needleLength;
-  const segments = Array.from({ length: 32 }, (_, index) => {
-    const segmentStart = startAngle + ((endAngle - startAngle) / 31) * index;
-    const segmentEnd = segmentStart + 3.2;
-    const outerRadius = 81;
-    const innerRadius = 65;
-    const startRadians = (segmentStart * Math.PI) / 180;
-    const endRadians = (segmentEnd * Math.PI) / 180;
-    const x1 = centerX + Math.cos(startRadians) * innerRadius;
-    const y1 = centerY + Math.sin(startRadians) * innerRadius;
-    const x2 = centerX + Math.cos(endRadians) * outerRadius;
-    const y2 = centerY + Math.sin(endRadians) * outerRadius;
-    const stroke = index < 13 ? "#f12d28" : index < 23 ? "#7d6516" : "#1f8a2f";
-
-    return {
-      path: `M ${x1.toFixed(2)} ${y1.toFixed(2)} L ${x2.toFixed(2)} ${y2.toFixed(2)}`,
-      stroke
-    };
-  });
-
-  return (
-    <div className="confidence">
-      <svg className="confidence-svg" viewBox="0 0 235 182" aria-hidden="true">
-        {segments.map((segment) => (
-          <path
-            key={segment.path}
-            d={segment.path}
-            fill="none"
-            stroke={segment.stroke}
-            strokeLinecap="round"
-            strokeOpacity="0.92"
-            strokeWidth="3.6"
-          />
-        ))}
-        <line x1={centerX} y1={centerY} x2={needleX} y2={needleY} stroke="#353535" strokeWidth="3" strokeLinecap="round" />
-        <circle cx={centerX} cy={centerY} r="6.5" fill="#53535c" />
-      </svg>
-      <div className="confidence-center">
-        <div className="confidence-value">{normalizedValue}%</div>
-      </div>
-      <span className="confidence-axis zero">0</span>
-      <span className="confidence-axis fifty">50</span>
-      <span className="confidence-axis hundred">100</span>
-      <span className="confidence-label low">Low confidence</span>
-      <span className="confidence-label high">Extreme confidence</span>
-    </div>
   );
 }
 
