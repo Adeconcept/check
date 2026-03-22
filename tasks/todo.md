@@ -1,13 +1,12 @@
-# Details Page Evidence Playback Plan
+# Permanent Next Build Output Fix Plan
 
-- [x] Review the current report video overlay and evidence sections to identify how to connect them to the same review flow.
-- [x] Make the visual evidence and comparison items open the playable review overlay at their flagged discrepancy ranges.
-- [x] Surface the verification logic used by Checky inside the playback overlay so the evidence is not just placeholder UI.
-- [x] Build the project to verify the details page evidence playback updates, then commit and push the completed feature.
+- [x] Confirm the recurring missing chunk error is coming from shared `.next` output being reused across dev and production builds.
+- [x] Separate the Next.js dev and production dist directories so `next dev` and `next build` stop writing into the same cache.
+- [x] Update the npm scripts so each mode cleans and uses its own output directory.
+- [x] Build the project and start the dev server to verify the permanent fix, then commit and push the completed feature.
 
 # Review
 
-- Moved the left-column report experience into a single client-side review flow so the hero video, visual evidence rows, and comparison rows all open the same playback overlay.
-- The evidence thumbnails now use the analyzed media preview, and clicking any item opens the player at the flagged discrepancy range instead of showing a static placeholder.
-- Added a `What Checky used` panel inside the review overlay so users can see the detection record that supports the flagged moments.
-- Verified the evidence playback updates with `npm run build`, which completed successfully.
+- Configured Next.js to read `distDir` from `NEXT_DIST_DIR`, so development and production no longer share the same generated chunk directory.
+- Updated npm scripts so `next dev` uses `.next-dev`, while `next build` and `next start` use `.next-prod`, with targeted cleanup before each run.
+- Verified the permanent fix with `npm run build` and `npm run dev`; the dev server started successfully using the isolated dev output directory.
