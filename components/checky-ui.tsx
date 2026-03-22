@@ -1,6 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
-import { analyzeVideo, type EvidenceItemData, type VideoAnalysisReport } from "@/lib/video-analysis";
+import { analyzeVideo, type VideoAnalysisReport } from "@/lib/video-analysis";
 import { AnalyzeProgressScreen } from "@/components/analyze-progress-screen";
 import { HomepageAnalyzeSection } from "@/components/homepage-analyze-section";
 import { ReportConfidenceGauge } from "@/components/report-confidence-gauge";
@@ -666,53 +665,7 @@ function ReportScreen({
               </div>
             </div>
 
-            <div className="report-section">
-              <ReportVideoPanel report={report} />
-
-              <div className="section-rule" />
-
-              <div className="section-copy">
-                <p className="eyebrow">Verification Details</p>
-                <h2 className="section-title">{report?.detectionHeadline ?? "Analysis unavailable"}</h2>
-                <p className="section-text">
-                  {report?.detectionSummary ??
-                    "Checky could not generate a full verification report for this link. Try the original source URL or a direct video file URL."}
-                </p>
-              </div>
-
-              <div className="section-rule" />
-
-              <div className="section-copy">
-                <p className="eyebrow">Visual Evidence</p>
-                <h2 className="section-title">{report?.detectionHeadline ?? "Detected manipulation"}</h2>
-                <div className="evidence-list">
-                  {report?.evidence.map((item) => <EvidenceItem key={item.title} {...item} />)}
-                </div>
-                <div className="section-copy">
-                  <h3 className="section-title">Comparison</h3>
-                  <p className="section-text">{report?.visualSummary ?? "No comparison data available."}</p>
-                </div>
-                <div className="evidence-list">
-                  {report?.comparisonEvidence.map((item) => <EvidenceItem key={item.title} {...item} />)}
-                </div>
-              </div>
-
-              <div className="section-rule" />
-
-              <div className="section-copy">
-                <p className="eyebrow">What to do next</p>
-                <h2 className="section-title">User Guidance</h2>
-                <p className="section-text">{report?.guidance ?? "Try analyzing another supported video URL."}</p>
-                <div className="cta-row">
-                  <button className="report-action-button report-action-button-inverse" type="button">
-                    Report video
-                  </button>
-                  <Link className="report-action-button" href={shareHref}>
-                    Share report
-                  </Link>
-                </div>
-              </div>
-            </div>
+            <ReportVideoPanel report={report} shareHref={shareHref} />
           </div>
 
           <div className="report-divider" />
@@ -762,27 +715,6 @@ function ReportScreen({
         </div>
       ) : null}
     </>
-  );
-}
-
-function EvidenceItem({
-  title,
-  range,
-  date,
-  original = false
-}: EvidenceItemData) {
-  return (
-    <div className="evidence-item">
-      <div className={`thumb-small${original ? " original" : ""}`} aria-hidden="true" />
-      <div className="evidence-copy">
-        <p className="evidence-title">{title}</p>
-        <div className="evidence-meta">
-          <span>{range}</span>
-          <span className="meta-dot" aria-hidden="true" />
-          <span>{date}</span>
-        </div>
-      </div>
-    </div>
   );
 }
 
