@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { VideoPreview } from "@/lib/video-analysis";
+import { VideoThumbnail } from "@/components/video-thumbnail";
 import { sanitizeVideoUrlCandidate, validateVideoUrl } from "@/lib/video-url";
 
 function formatPreviewTitle(title: string, sourceUrl: string) {
@@ -134,7 +135,14 @@ export function AnalyzeUrlForm() {
       {preview ? (
         <div className="upload-card">
           <div className="upload-thumb">
-            <Image alt="" className="upload-thumb-image" fill sizes="48px" src={preview.thumbnailUrl} unoptimized />
+            <VideoThumbnail
+              alt=""
+              className="upload-thumb-image"
+              fallbackSrc={preview.thumbnailUrl}
+              seekSeconds={2}
+              sizes="48px"
+              sourceUrl={preview.sourceUrl}
+            />
             <span className="upload-thumb-overlay" />
             <span className="upload-thumb-play" aria-hidden="true" />
           </div>

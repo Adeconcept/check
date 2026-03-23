@@ -108,8 +108,6 @@ function placeholderThumbnail(title: string) {
       </defs>
       <rect width="96" height="96" fill="url(#g)" />
       <rect width="96" height="96" fill="rgba(43,43,43,0.55)" />
-      <circle cx="48" cy="48" r="19" fill="none" stroke="#fffffa" stroke-width="2" opacity="0.88" />
-      <path d="M45 39.5 58 48 45 56.5Z" fill="#fffffa" />
       <text x="48" y="82" fill="#fffffa" font-family="Arial, sans-serif" font-size="9" text-anchor="middle">${safeTitle.slice(0, 12)}</text>
     </svg>
   `.trim();

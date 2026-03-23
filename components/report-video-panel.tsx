@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import type { EvidenceItemData, VideoAnalysisReport } from "@/lib/video-analysis";
+import { VideoThumbnail } from "@/components/video-thumbnail";
 import { getPlaybackConfig, parseTimeRange } from "@/lib/video-playback";
 
 type ReportVideoPanelProps = {
@@ -64,15 +65,15 @@ export function ReportVideoPanel({ report, shareHref }: ReportVideoPanelProps) {
   return (
     <>
       <div className="report-section">
-        <button className="video-card video-card-button" onClick={() => openPlayer()} type="button">
-          <Image
+        <button aria-label={`Play ${report.fileName}`} className="video-card video-card-button" onClick={() => openPlayer()} type="button">
+          <VideoThumbnail
             alt={`${report.fileName} preview`}
             className="video-card-image"
-            fill
+            fallbackSrc={report.preview.thumbnailUrl}
             priority
+            seekSeconds={2}
             sizes="(max-width: 1080px) 100vw, 929px"
-            src={report.preview.thumbnailUrl}
-            unoptimized
+            sourceUrl={report.preview.sourceUrl}
           />
           <div className="video-card-overlay" />
           <div className="play-badge" aria-hidden="true" />
@@ -97,7 +98,8 @@ export function ReportVideoPanel({ report, shareHref }: ReportVideoPanelProps) {
                 key={`${marker.title}-${marker.label}`}
                 marker={marker}
                 onSelect={openPlayer}
-                thumbnailUrl={report.preview.thumbnailUrl}
+                fallbackThumbnailUrl={report.preview.thumbnailUrl}
+                sourceUrl={report.preview.sourceUrl}
               />
             ))}
           </div>
@@ -113,7 +115,8 @@ export function ReportVideoPanel({ report, shareHref }: ReportVideoPanelProps) {
                 key={`${marker.title}-${marker.label}`}
                 marker={marker}
                 onSelect={openPlayer}
-                thumbnailUrl={report.preview.thumbnailUrl}
+                fallbackThumbnailUrl={report.preview.thumbnailUrl}
+                sourceUrl={report.preview.sourceUrl}
               />
             ))}
           </div>
@@ -226,25 +229,27 @@ export function ReportVideoPanel({ report, shareHref }: ReportVideoPanelProps) {
 }
 
 function EvidenceItemButton({
+  fallbackThumbnailUrl,
   marker,
   onSelect,
-  thumbnailUrl
+  sourceUrl
 }: {
+  fallbackThumbnailUrl: string;
   marker: SelectedMarker;
   onSelect: (marker: SelectedMarker) => void;
-  thumbnailUrl: string;
+  sourceUrl: string;
 }) {
   return (
-    <button className="evidence-item evidence-item-button" onClick={() => onSelect(marker)} type="button">
+    <button aria-label={`Preview ${marker.title} at ${marker.label}`} className="evidence-item evidence-item-button" onClick={() => onSelect(marker)} type="button">
       <div className={`thumb-small${marker.original ? " original" : ""}`}>
-        <Image
+        <VideoThumbnail
           alt=""
           className="thumb-small-image"
-          fill
+          fallbackSrc={fallbackThumbnailUrl}
+          objectPosition={objectPositionFromMarker(marker)}
+          seekSeconds={Math.max(0.1, marker.startSeconds || 2)}
           sizes="48px"
-          src={thumbnailUrl}
-          style={{ objectPosition: objectPositionFromMarker(marker) }}
-          unoptimized
+          sourceUrl={sourceUrl}
         />
       </div>
       <div className="evidence-copy">

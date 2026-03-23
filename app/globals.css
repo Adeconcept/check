@@ -1025,9 +1025,7 @@ input {
   position: relative;
   height: 396px;
   overflow: hidden;
-  background:
-    linear-gradient(rgba(43, 43, 43, 0.6), rgba(43, 43, 43, 0.6)),
-    linear-gradient(120deg, #181818, #74684f 42%, #2b250c 72%, #0f1012);
+  background: #111218;
 }
 
 .video-card-button {
@@ -1050,7 +1048,7 @@ input {
 }
 
 .video-card-overlay {
-  background: linear-gradient(rgba(43, 43, 43, 0.4), rgba(43, 43, 43, 0.62));
+  background: linear-gradient(rgba(11, 12, 18, 0.18), rgba(11, 12, 18, 0.48));
 }
 
 .video-card-empty {
@@ -1063,50 +1061,27 @@ input {
   text-align: center;
 }
 
-.video-card::before {
-  content: "";
-  position: absolute;
-  right: 170px;
-  top: 40px;
-  width: 86px;
-  height: 188px;
-  border-radius: 12px;
-  border: 3px solid rgba(255, 255, 255, 0.28);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent),
-    linear-gradient(135deg, #5b5a4b, #98916f 55%, #1b1b16);
-}
-
-.video-card::after {
-  content: "";
-  position: absolute;
-  left: 205px;
-  right: 0;
-  bottom: 0;
-  height: 58%;
-  background: radial-gradient(circle at 0 100%, rgba(61, 44, 30, 0.92), transparent 48%);
-}
-
 .play-badge {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 100px;
-  height: 100px;
+  width: 56px;
+  height: 56px;
   transform: translate(-50%, -50%);
-  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.74);
   border-radius: 999px;
+  background: rgba(10, 11, 15, 0.24);
+  backdrop-filter: blur(2px);
 }
 
 .play-badge::before {
   content: "";
   position: absolute;
-  left: 41px;
-  top: 30px;
-  border-left: 18px solid rgba(255, 255, 255, 0.9);
-  border-top: 12px solid transparent;
-  border-bottom: 12px solid transparent;
+  left: 24px;
+  top: 18px;
+  border-left: 12px solid rgba(255, 255, 255, 0.9);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
 }
 
 .report-video-modal {
@@ -1391,20 +1366,16 @@ input {
   flex: 0 0 auto;
   position: relative;
   overflow: hidden;
-  background:
-    linear-gradient(rgba(43, 43, 43, 0.6), rgba(43, 43, 43, 0.6)),
-    linear-gradient(140deg, #4f483d, #6c6b62 45%, #1f211f);
+  background: #111218;
 }
 
 .thumb-small-image {
   object-fit: cover;
-  opacity: 0.88;
+  opacity: 0.94;
 }
 
 .thumb-small.original {
-  background:
-    linear-gradient(rgba(43, 43, 43, 0.6), rgba(43, 43, 43, 0.6)),
-    linear-gradient(140deg, #525655, #7a8072 45%, #1f211f);
+  background: #13161d;
 }
 
 .thumb-small::before {
