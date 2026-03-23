@@ -63,6 +63,8 @@ export async function CheckyScreen({
   searchParams?: Record<string, string | string[] | undefined>;
 }) {
   const sourceUrl = readSearchParam(searchParams?.url);
+  const modal = readSearchParam(searchParams?.modal);
+  const showGetStartedModal = mode === "home" && modal === "get-started";
 
   if (mode === "analyzing") {
     return (
@@ -113,9 +115,14 @@ export async function CheckyScreen({
   }
 
   return (
-    <BaseScreen>
+    <BaseScreen showHeroOrbit={showGetStartedModal} getStartedHref="/?modal=get-started">
       <LandingHero mode={mode} />
       <Footer />
+      {showGetStartedModal ? (
+        <div className="overlay modal-offset">
+          <AuthModal closeHref="/" variant="signup-empty" />
+        </div>
+      ) : null}
     </BaseScreen>
   );
 }
@@ -154,7 +161,8 @@ function BaseScreen({
   compactFooter = false,
   hideFooter = false,
   hideMenu = false,
-  showHeroOrbit = false
+  showHeroOrbit = false,
+  getStartedHref
 }: {
   children: React.ReactNode;
   loggedIn?: boolean;
@@ -163,10 +171,11 @@ function BaseScreen({
   hideFooter?: boolean;
   hideMenu?: boolean;
   showHeroOrbit?: boolean;
+  getStartedHref?: string;
 }) {
   return (
     <div className="screen">
-      {!hideMenu && <Menu loggedIn={loggedIn} topActionLabel={topActionLabel} />}
+      {!hideMenu && <Menu getStartedHref={getStartedHref} loggedIn={loggedIn} topActionLabel={topActionLabel} />}
       {showHeroOrbit && <HeroOrbit />}
       {children}
       {!hideFooter && <Footer compact={compactFooter} loggedIn={loggedIn} />}
@@ -174,7 +183,15 @@ function BaseScreen({
   );
 }
 
-function Menu({ loggedIn = false, topActionLabel = "Get started" }: { loggedIn?: boolean; topActionLabel?: string }) {
+function Menu({
+  loggedIn = false,
+  topActionLabel = "Get started",
+  getStartedHref
+}: {
+  loggedIn?: boolean;
+  topActionLabel?: string;
+  getStartedHref?: string;
+}) {
   return (
     <header className="menu">
       <Link className="brand" href="/">
@@ -192,9 +209,9 @@ function Menu({ loggedIn = false, topActionLabel = "Get started" }: { loggedIn?:
           <span>0xF0Ef88...9802</span>
         </div>
       ) : (
-        <button className="top-action" type="button">
+        <Link className="top-action" href={getStartedHref ?? "/screens/signup-empty"}>
           {topActionLabel}
-        </button>
+        </Link>
       )}
     </header>
   );
@@ -429,7 +446,15 @@ function InstagramIcon() {
   );
 }
 
-function AuthModal({ variant }: { variant: AuthVariant }) {
+function CloseGlyph() {
+  return (
+    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
+      <path d="M8 8l8 8M16 8l-8 8" stroke="currentColor" strokeLinecap="round" strokeWidth="1.4" />
+    </svg>
+  );
+}
+
+function AuthModal({ variant, closeHref }: { variant: AuthVariant; closeHref?: string }) {
   const isSignup = variant === "signup-empty" || variant === "signup-filled";
   const filled = variant === "signup-filled" || variant === "login-filled";
   const title = isSignup ? "Get started" : "Log in";
@@ -444,7 +469,15 @@ function AuthModal({ variant }: { variant: AuthVariant }) {
           <div className="modal-title-wrap">
             <h2 className="modal-title">{title}</h2>
           </div>
-          <button className="icon-button close-icon" type="button" aria-label="Close modal" />
+          {closeHref ? (
+            <Link className="icon-button close-icon" href={closeHref} aria-label="Close modal">
+              <CloseGlyph />
+            </Link>
+          ) : (
+            <button className="icon-button close-icon" type="button" aria-label="Close modal">
+              <CloseGlyph />
+            </button>
+          )}
         </div>
 
         {isSignup ? (
