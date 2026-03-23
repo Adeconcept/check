@@ -33,34 +33,24 @@ export function ReportConfidenceGauge({ confidenceRate }: { confidenceRate: numb
         <path d={needle.path} fill="#353535" opacity="0.98" />
         <circle cx={CENTER_X} cy={CENTER_Y} fill="#8D8D8D" r="8.5" />
 
-        <text className="confidence-axis-svg" x="28" y="129">
-          0
-        </text>
-        <text className="confidence-axis-svg" textAnchor="middle" x={CENTER_X} y="39">
-          50
-        </text>
-        <text className="confidence-axis-svg" textAnchor="end" x="208" y="129">
-          100
-        </text>
-
         <text className="confidence-value-svg" textAnchor="middle" x={CENTER_X} y="154">
           {value}%
         </text>
 
-        <text className="confidence-label-low-svg" x="4" y="166">
-          <tspan x="4" dy="0">
+        <text className="confidence-label-low-svg" x="18" y="130">
+          <tspan x="18" dy="0">
             Low
           </tspan>
-          <tspan x="4" dy="14">
+          <tspan x="18" dy="13">
             confidence
           </tspan>
         </text>
 
-        <text className="confidence-label-high-svg" textAnchor="end" x="231" y="166">
-          <tspan x="231" dy="0">
+        <text className="confidence-label-high-svg" textAnchor="end" x="217" y="130">
+          <tspan x="217" dy="0">
             Extreme
           </tspan>
-          <tspan x="231" dy="14">
+          <tspan x="217" dy="13">
             confidence
           </tspan>
         </text>

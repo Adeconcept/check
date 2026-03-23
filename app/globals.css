@@ -926,7 +926,7 @@ input {
 .report-shell {
   position: relative;
   z-index: 2;
-  padding: 100px 63px 96px 64px;
+  padding: 16px 63px 96px 64px;
 }
 
 .report-grid {
@@ -966,14 +966,6 @@ input {
   font-size: 24px;
   font-weight: 700;
   line-height: 32px;
-}
-
-.confidence-axis-svg {
-  fill: var(--muted-2);
-  font-family: "Satoshi", var(--font-body), sans-serif;
-  font-size: 10px;
-  font-weight: 500;
-  line-height: 1.6;
 }
 
 .confidence-label-low-svg {
@@ -1836,7 +1828,7 @@ input {
   }
 
   .report-shell {
-    padding: 104px 20px 48px;
+    padding: 16px 20px 48px;
   }
 
   .report-top {
