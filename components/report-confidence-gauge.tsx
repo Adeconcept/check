@@ -1,94 +1,138 @@
-"use client";
+type Segment = {
+  path: string;
+  stroke: string;
+};
 
-import { useEffect, useState } from "react";
-import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
+const CENTER_X = 117.5;
+const CENTER_Y = 116;
+const INNER_RADIUS = 78;
+const OUTER_RADIUS = 99;
+const START_ANGLE = 196;
+const END_ANGLE = 344;
+const SEGMENT_COUNT = 30;
 
 export function ReportConfidenceGauge({ confidenceRate }: { confidenceRate: number }) {
   const value = Number.isFinite(confidenceRate) ? Math.min(100, Math.max(0, confidenceRate)) : 0;
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const segments = buildSegments();
+  const needle = buildNeedle(value);
 
   return (
-    <div className="confidence">
-      {isMounted ? (
-        <Gauge
-          id="report-confidence-gauge"
-          value={value}
-          valueMin={0}
-          valueMax={100}
-          startAngle={-110}
-          endAngle={110}
-          innerRadius="72%"
-          outerRadius="100%"
-          cornerRadius="50%"
-          sx={{
-            [`& .${gaugeClasses.referenceArc}`]: {
-              fill: "rgba(255,255,255,0.08)"
-            },
-            [`& .${gaugeClasses.valueArc}`]: {
-              fill: "url(#confidenceGaugeGradient)"
-            },
-            [`& .${gaugeClasses.valueText}`]: {
-              display: "none"
-            }
-          }}
-          width={235}
-          height={182}
-          text={() => ""}
-        >
-          <svg aria-hidden="true" className="confidence-gradient-defs" focusable="false">
-            <defs>
-              <linearGradient id="confidenceGaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#F12D28" />
-                <stop offset="56%" stopColor="#7D6516" />
-                <stop offset="100%" stopColor="#1DD736" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </Gauge>
-      ) : (
-        <ConfidenceGaugeFallback />
-      )}
-      <div className="confidence-center">
-        <div className="confidence-value">{value}%</div>
-      </div>
-      <span className="confidence-axis zero">0</span>
-      <span className="confidence-axis fifty">50</span>
-      <span className="confidence-axis hundred">100</span>
-      <span className="confidence-label low">Low confidence</span>
-      <span className="confidence-label high">Extreme confidence</span>
+    <div className="confidence" aria-label={`Confidence rate ${value}%`} role="img">
+      <svg className="confidence-svg" viewBox="0 0 235 182" aria-hidden="true">
+        {segments.map((segment) => (
+          <path
+            key={segment.path}
+            d={segment.path}
+            fill="none"
+            stroke={segment.stroke}
+            strokeLinecap="round"
+            strokeWidth="4"
+          />
+        ))}
+
+        <path d={needle.path} fill="#353535" opacity="0.98" />
+        <circle cx={CENTER_X} cy={CENTER_Y} fill="#8D8D8D" r="8.5" />
+
+        <text className="confidence-axis-svg" x="28" y="129">
+          0
+        </text>
+        <text className="confidence-axis-svg" textAnchor="middle" x={CENTER_X} y="39">
+          50
+        </text>
+        <text className="confidence-axis-svg" textAnchor="end" x="208" y="129">
+          100
+        </text>
+
+        <text className="confidence-value-svg" textAnchor="middle" x={CENTER_X} y="154">
+          {value}%
+        </text>
+
+        <text className="confidence-label-low-svg" x="4" y="166">
+          <tspan x="4" dy="0">
+            Low
+          </tspan>
+          <tspan x="4" dy="14">
+            confidence
+          </tspan>
+        </text>
+
+        <text className="confidence-label-high-svg" textAnchor="end" x="231" y="166">
+          <tspan x="231" dy="0">
+            Extreme
+          </tspan>
+          <tspan x="231" dy="14">
+            confidence
+          </tspan>
+        </text>
+      </svg>
     </div>
   );
 }
 
-function ConfidenceGaugeFallback() {
-  return (
-    <svg className="confidence-svg" viewBox="0 0 235 182" aria-hidden="true">
-      <path
-        d="M24 131C33 88 71 56 117.5 56C164 56 202 88 211 131"
-        fill="none"
-        stroke="rgba(255,255,255,0.08)"
-        strokeLinecap="round"
-        strokeWidth="18"
-      />
-      <path
-        d="M24 131C33 88 71 56 117.5 56C164 56 202 88 211 131"
-        fill="none"
-        stroke="url(#confidenceGaugeFallbackGradient)"
-        strokeDasharray="154 220"
-        strokeLinecap="round"
-        strokeWidth="18"
-      />
-      <defs>
-        <linearGradient id="confidenceGaugeFallbackGradient" x1="24" x2="211" y1="131" y2="131" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#F12D28" />
-          <stop offset="56%" stopColor="#7D6516" />
-          <stop offset="100%" stopColor="#1DD736" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
+function buildSegments() {
+  return Array.from({ length: SEGMENT_COUNT }, (_, index) => {
+    const ratio = index / (SEGMENT_COUNT - 1);
+    const angle = START_ANGLE + (END_ANGLE - START_ANGLE) * ratio;
+    const radians = (angle * Math.PI) / 180;
+    const innerX = CENTER_X + Math.cos(radians) * INNER_RADIUS;
+    const innerY = CENTER_Y + Math.sin(radians) * INNER_RADIUS;
+    const outerX = CENTER_X + Math.cos(radians) * OUTER_RADIUS;
+    const outerY = CENTER_Y + Math.sin(radians) * OUTER_RADIUS;
+
+    return {
+      path: `M ${innerX.toFixed(2)} ${innerY.toFixed(2)} L ${outerX.toFixed(2)} ${outerY.toFixed(2)}`,
+      stroke: interpolateSegmentColor(ratio)
+    } satisfies Segment;
+  });
+}
+
+function interpolateSegmentColor(ratio: number) {
+  if (ratio < 0.48) {
+    return interpolateHex("#F12D28", "#FF7B57", ratio / 0.48);
+  }
+
+  if (ratio < 0.72) {
+    return interpolateHex("#FF7B57", "#7D6516", (ratio - 0.48) / 0.24);
+  }
+
+  return interpolateHex("#7D6516", "#1DD736", (ratio - 0.72) / 0.28);
+}
+
+function interpolateHex(start: string, end: string, ratio: number) {
+  const clamped = Math.min(1, Math.max(0, ratio));
+  const [sr, sg, sb] = hexToRgb(start);
+  const [er, eg, eb] = hexToRgb(end);
+  const r = Math.round(sr + (er - sr) * clamped);
+  const g = Math.round(sg + (eg - sg) * clamped);
+  const b = Math.round(sb + (eb - sb) * clamped);
+
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function hexToRgb(hex: string) {
+  const normalized = hex.replace("#", "");
+
+  return [
+    Number.parseInt(normalized.slice(0, 2), 16),
+    Number.parseInt(normalized.slice(2, 4), 16),
+    Number.parseInt(normalized.slice(4, 6), 16)
+  ];
+}
+
+function buildNeedle(value: number) {
+  const angle = START_ANGLE + (END_ANGLE - START_ANGLE) * (value / 100);
+  const radians = (angle * Math.PI) / 180;
+  const needleLength = 74;
+  const tipX = CENTER_X + Math.cos(radians) * needleLength;
+  const tipY = CENTER_Y + Math.sin(radians) * needleLength;
+  const baseOffset = 5.5;
+  const perpendicular = radians + Math.PI / 2;
+  const leftBaseX = CENTER_X + Math.cos(perpendicular) * baseOffset;
+  const leftBaseY = CENTER_Y + Math.sin(perpendicular) * baseOffset;
+  const rightBaseX = CENTER_X - Math.cos(perpendicular) * baseOffset;
+  const rightBaseY = CENTER_Y - Math.sin(perpendicular) * baseOffset;
+
+  return {
+    path: `M ${leftBaseX.toFixed(2)} ${leftBaseY.toFixed(2)} L ${tipX.toFixed(2)} ${tipY.toFixed(2)} L ${rightBaseX.toFixed(2)} ${rightBaseY.toFixed(2)} Z`
+  };
 }

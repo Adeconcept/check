@@ -1,11 +1,11 @@
-# Gauge Hydration Fix Plan
+# Gauge Design Cleanup Plan
 
-- [x] Trace the hydration mismatch to the report confidence gauge client subtree.
-- [x] Make the gauge render a deterministic fallback on the server and first client paint before mounting the interactive gauge.
-- [x] Build the project to verify the hydration fix, then commit and push the completed feature.
+- [x] Compare the current confidence gauge against the Figma gauge and identify the overlap issue.
+- [x] Replace the mixed HTML-over-gauge layout with a single clean SVG gauge so the labels and value cannot collide.
+- [x] Build the project to verify the gauge redesign, then commit and push the completed feature.
 
 # Review
 
-- Wrapped the report confidence gauge in a mount-safe rendering pattern so the server and initial client render now match.
-- Kept the MUI gauge for the interactive state, but added a static SVG fallback for SSR and first paint to eliminate hydration drift.
-- Verified the fix with `npm run build`, which completed successfully.
+- Replaced the confidence meter with a single self-contained SVG gauge that keeps the arc, needle, percentage, and labels in one coordinate system.
+- Cleaned up the gauge layout so the value sits below the needle as in the Figma frame instead of overlapping the arc.
+- Verified the gauge redesign with `npm run build`, which completed successfully.

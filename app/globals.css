@@ -951,7 +951,6 @@ input {
 }
 
 .confidence {
-  position: relative;
   width: 235px;
   height: 182px;
 }
@@ -961,65 +960,36 @@ input {
   height: 100%;
 }
 
-.confidence-gradient-defs {
-  position: absolute;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-}
-
-.confidence-center {
-  position: absolute;
-  left: 50%;
-  top: 103px;
-  transform: translateX(-50%);
-  text-align: center;
-}
-
-.confidence-value {
+.confidence-value-svg {
+  fill: var(--text);
   font-family: var(--font-display), sans-serif;
   font-size: 24px;
+  font-weight: 700;
   line-height: 32px;
-  font-weight: 800;
 }
 
-.confidence-axis,
-.confidence-label {
-  position: absolute;
+.confidence-axis-svg {
+  fill: var(--muted-2);
+  font-family: "Satoshi", var(--font-body), sans-serif;
   font-size: 10px;
-  line-height: 1.6;
   font-weight: 500;
-  color: var(--muted-2);
+  line-height: 1.6;
 }
 
-.confidence-axis.zero {
-  left: 18px;
-  bottom: 48px;
+.confidence-label-low-svg {
+  fill: var(--red);
+  font-family: "Satoshi", var(--font-body), sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.6;
 }
 
-.confidence-axis.fifty {
-  left: 109px;
-  top: 35px;
-}
-
-.confidence-axis.hundred {
-  right: 16px;
-  bottom: 48px;
-}
-
-.confidence-label.low {
-  left: -1px;
-  bottom: 12px;
-  width: 54px;
-  color: var(--red);
-}
-
-.confidence-label.high {
-  right: -2px;
-  bottom: 12px;
-  width: 52px;
-  text-align: right;
-  color: var(--green);
+.confidence-label-high-svg {
+  fill: var(--green);
+  font-family: "Satoshi", var(--font-body), sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.6;
 }
 
 .stat-pair {
