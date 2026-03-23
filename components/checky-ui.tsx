@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { analyzeVideo, NOT_AVAILABLE, type VideoAnalysisReport } from "@/lib/video-analysis";
 import { AnalyzeProgressScreen } from "@/components/analyze-progress-screen";
+import { AuthModalForm } from "@/components/auth-modal-form";
 import { HomepageAnalyzeSection } from "@/components/homepage-analyze-section";
 import { ReportConfidenceGauge } from "@/components/report-confidence-gauge";
 import { ReportVideoPanel } from "@/components/report-video-panel";
@@ -64,7 +65,8 @@ export async function CheckyScreen({
 }) {
   const sourceUrl = readSearchParam(searchParams?.url);
   const modal = readSearchParam(searchParams?.modal);
-  const showGetStartedModal = mode === "home" && modal === "get-started";
+  const showAuthModal = mode === "home" && (modal === "get-started" || modal === "log-in");
+  const homepageAuthVariant: AuthVariant = modal === "log-in" ? "login-empty" : "signup-empty";
 
   if (mode === "analyzing") {
     return (
@@ -115,12 +117,12 @@ export async function CheckyScreen({
   }
 
   return (
-    <BaseScreen showHeroOrbit={showGetStartedModal} getStartedHref="/?modal=get-started">
+    <BaseScreen showHeroOrbit={showAuthModal} getStartedHref="/?modal=get-started">
       <LandingHero mode={mode} />
       <Footer />
-      {showGetStartedModal ? (
+      {showAuthModal ? (
         <div className="overlay modal-offset">
-          <AuthModal closeHref="/" variant="signup-empty" />
+          <AuthModal closeHref="/" variant={homepageAuthVariant} />
         </div>
       ) : null}
     </BaseScreen>
@@ -510,145 +512,7 @@ function WalletGlyph() {
 }
 
 function AuthModal({ variant, closeHref }: { variant: AuthVariant; closeHref?: string }) {
-  const isSignup = variant === "signup-empty" || variant === "signup-filled";
-  const filled = variant === "signup-filled" || variant === "login-filled";
-  const title = isSignup ? "Get started" : "Log in";
-  const submitLabel = isSignup ? "Create account" : "Login";
-  const switchLabel = isSignup ? "Have an account? Log in" : "New to checky? Create account";
-  const secondaryLabel = isSignup ? "Connect wallet" : "Connect wallet";
-
-  return (
-    <div className={`modal${isSignup ? " signup-modal" : ""}`}>
-      <div className="modal-body">
-        <div className="modal-header">
-          <div className="modal-title-wrap">
-            <h2 className="modal-title">{title}</h2>
-          </div>
-          {closeHref ? (
-            <Link className="icon-button close-icon" href={closeHref} aria-label="Close modal">
-              <CloseGlyph />
-            </Link>
-          ) : (
-            <button className="icon-button close-icon" type="button" aria-label="Close modal">
-              <CloseGlyph />
-            </button>
-          )}
-        </div>
-
-        {isSignup ? (
-          <div className="info-banner">
-            <span className="info-dot" aria-hidden="true">
-              <InfoGlyph />
-            </span>
-            <span>A wallet address on Solana will be created for you.</span>
-          </div>
-        ) : null}
-
-        <div className="form-stack">
-          {isSignup ? (
-            <>
-              <TextField label="Email" defaultValue={filled ? "johndoe@gmail.com" : ""} placeholder="e.g johndoe@gmail.com" />
-              <TextField label="Username (optional)" defaultValue={filled ? "johndoe" : ""} placeholder="e.g johndoe" />
-            </>
-          ) : (
-            <TextField
-              label="Email/Username"
-              defaultValue={filled ? "johndoe@gmail.com" : ""}
-              placeholder="e.g johndoe"
-            />
-          )}
-
-          <TextField label="Password" defaultValue={filled ? "***********" : ""} placeholder="" password />
-
-          {isSignup ? (
-            <div className="password-rules">
-              <div className="rule-list">
-                <div className="rule-title">
-                  <span className="info-dot" aria-hidden="true">
-                    <InfoGlyph />
-                  </span>
-                  <span>Your password:</span>
-                </div>
-                <div className="rule-item">
-                  <span className="rule-check done" aria-hidden="true">
-                    <CheckCircleGlyph />
-                  </span>
-                  <span>Must be at least 8-digits long</span>
-                </div>
-                <div className="rule-item">
-                  <span className="rule-check done" aria-hidden="true">
-                    <CheckCircleGlyph />
-                  </span>
-                  <span>Must include an Upper Case Character</span>
-                </div>
-                <div className="rule-item">
-                  <span className="rule-check done" aria-hidden="true">
-                    <CheckCircleGlyph />
-                  </span>
-                  <span>Mut Special Character</span>
-                </div>
-              </div>
-            </div>
-          ) : null}
-        </div>
-
-        <button className={`gradient-button large${filled ? "" : " dimmed"}`} type="button">
-          {submitLabel}
-        </button>
-
-        <div className="divider-row">
-          <span>or</span>
-        </div>
-
-        <div className="social-row">
-          <div className="auth-option">
-            <span className="auth-option-chip" aria-hidden="true">
-              <GoogleGlyph />
-            </span>
-            <span className="auth-option-label">Google</span>
-          </div>
-          <span className="auth-option-separator" aria-hidden="true" />
-          <div className="auth-option">
-            <span className="auth-option-chip" aria-hidden="true">
-              <WalletGlyph />
-            </span>
-            <span className="auth-option-label">{secondaryLabel}</span>
-          </div>
-        </div>
-
-        <div className="auth-switch">
-          <span>{switchLabel.split("?")[0]}? </span>
-          <strong>{switchLabel.split("?")[1]?.trim() ?? ""}</strong>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TextField({
-  label,
-  placeholder,
-  defaultValue,
-  password = false
-}: {
-  label: string;
-  placeholder: string;
-  defaultValue: string;
-  password?: boolean;
-}) {
-  return (
-    <div className="field">
-      <label>{label}</label>
-      <div className="text-input">
-        <input aria-label={label} defaultValue={defaultValue} placeholder={placeholder} readOnly />
-        {password ? (
-          <span className="eye-icon" aria-hidden="true">
-            <EyeOpenGlyph />
-          </span>
-        ) : null}
-      </div>
-    </div>
-  );
+  return <AuthModalForm closeHref={closeHref} variant={variant} />;
 }
 
 function ConnectWalletModal() {

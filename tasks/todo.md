@@ -1,11 +1,13 @@
-# Homepage Signup Modal Cleanup Plan
+# Homepage Signup Validation Plan
 
-- [x] Remove the forced desktop scroll behavior from the signup modal shell so the dialog fits as a single viewport modal.
-- [x] Normalize the small modal glyph sizes so the close, info, checklist, and eye icons stop rendering oversized.
-- [x] Build the project to verify the signup modal cleanup, then commit and push the completed feature.
+- [x] Convert the auth modal into a real client-side form so the fields can validate live and the button state can react correctly.
+- [x] Enforce exact signup requirements for email, username availability, and password rules before the account button can activate.
+- [x] Support the login modal state from the homepage so users can switch between sign up and log in from the same shell.
+- [x] Build the project to verify the signup validation flow, then commit and push the completed feature.
 
 # Review
 
-- Removed the forced desktop scrolling from the signup modal while keeping a smaller-screen fallback that can scroll only when the viewport is genuinely short.
-- Shrunk the tiny modal glyph boxes so the close, info, rule-check, and password eye controls render more like the Figma sizes.
-- Verified the signup modal cleanup with `npm run build`, which completed successfully.
+- The auth modal now uses a real client form, with live validation instead of static read-only fields.
+- Signup now requires a valid email, a password that satisfies the written rules, and an available username when one is entered.
+- The homepage modal can now switch between sign up and log in states from the same overlay flow.
+- Verified the signup validation flow with `npm run build`, which completed successfully.

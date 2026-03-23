@@ -657,6 +657,10 @@ input {
   color: var(--text);
 }
 
+.text-input.field-error {
+  border-color: var(--pink);
+}
+
 .text-input input {
   width: 100%;
   border: 0;
@@ -670,6 +674,24 @@ input {
 
 .text-input input::placeholder {
   color: #667085;
+}
+
+.field-hint {
+  font-family: "Satoshi", var(--font-body), sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.field-hint.muted {
+  color: var(--muted);
+}
+
+.field-hint.success {
+  color: #88d4a0;
+}
+
+.field-hint.error {
+  color: #f18ea5;
 }
 
 .password-rules {
@@ -714,11 +736,19 @@ input {
   flex: 0 0 auto;
 }
 
+.rule-check.done {
+  color: var(--text);
+}
+
 .eye-icon {
   width: 16px;
   height: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--text);
   flex: 0 0 auto;
+  cursor: pointer;
 }
 
 .divider-row {
@@ -798,6 +828,11 @@ input {
 }
 
 .auth-switch strong {
+  font-weight: 700;
+}
+
+.auth-switch a {
+  color: var(--text);
   font-weight: 700;
 }
 
