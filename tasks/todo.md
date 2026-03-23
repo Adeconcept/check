@@ -1,11 +1,11 @@
-# Homepage Immediate Preview Plan
+# Homepage Figma Fidelity Plan
 
-- [x] Show a local fallback preview immediately for any valid public URL instead of waiting for metadata fetch to finish.
-- [x] Allow the analyze flow to proceed once a valid preview card exists while still enriching details in the background.
-- [x] Build the project to verify the immediate homepage preview update, then commit and push the completed feature.
+- [x] Match the homepage background to the Figma frame more closely by using a denser full-canvas noise texture instead of the softer gradient wash.
+- [x] Tighten the homepage typography styling to the Figma font weights and spacing for the hero copy and top action.
+- [x] Build the project to verify the homepage Figma fidelity update, then commit and push the completed feature.
 
 # Review
 
-- Added an instant local preview card for valid links so the homepage responds immediately even before provider metadata finishes loading.
-- Kept background preview enrichment and fallback messaging so the user can still continue when extra metadata is unavailable.
-- Verified the immediate homepage preview update with `npm run build`, which completed successfully.
+- Replaced the softer homepage wash with a denser repeated noise treatment that covers the full canvas more like the Figma frame.
+- Tightened the homepage hero and button typography so the display/body weight and spacing are closer to the Figma design.
+- Verified the homepage Figma fidelity update with `npm run build`, which completed successfully.
