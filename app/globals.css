@@ -538,6 +538,8 @@ input {
 .overlay.modal-offset {
   align-items: center;
   padding: 24px 16px;
+  background: rgba(14, 15, 21, 0.7);
+  backdrop-filter: none;
 }
 
 .modal {
@@ -548,6 +550,10 @@ input {
   padding: 24px;
   box-shadow: var(--shadow);
   overflow-y: auto;
+}
+
+.signup-modal {
+  width: min(568px, calc(100vw - 32px));
 }
 
 .modal.small {
@@ -577,8 +583,9 @@ input {
   margin: 0;
   font-family: var(--font-display), sans-serif;
   font-size: 32px;
-  line-height: 1.1;
-  font-weight: 800;
+  line-height: 48px;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 .modal-subtitle {
@@ -595,6 +602,7 @@ input {
   border-radius: 999px;
   color: var(--text);
   background: transparent;
+  padding: 4px;
 }
 
 .info-banner {
@@ -604,25 +612,21 @@ input {
   padding: 12px;
   border-radius: 10px;
   background: var(--panel);
+  color: var(--text);
+  font-family: "Satoshi", var(--font-body), sans-serif;
   font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
 }
 
 .info-dot {
   width: 18px;
   height: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 999px;
-  position: relative;
-}
-
-.info-dot::before {
-  content: "i";
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: 11px;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  flex: 0 0 auto;
 }
 
 .form-stack {
@@ -639,6 +643,7 @@ input {
 
 .field label {
   color: var(--muted);
+  font-family: "Satoshi", var(--font-body), sans-serif;
   font-size: 14px;
   line-height: 20px;
   font-weight: 500;
@@ -648,7 +653,7 @@ input {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 46px;
+  min-height: 44px;
   padding: 10px 14px;
   color: var(--text);
 }
@@ -659,6 +664,7 @@ input {
   background: transparent;
   color: inherit;
   outline: none;
+  font-family: "Satoshi", var(--font-body), sans-serif;
   font-size: 16px;
   line-height: 24px;
 }
@@ -678,7 +684,7 @@ input {
 .password-rules::before {
   content: "";
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .rule-list {
@@ -692,8 +698,9 @@ input {
 .rule-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   color: var(--muted);
+  font-family: "Satoshi", var(--font-body), sans-serif;
   font-size: 12px;
   line-height: 1.5;
 }
@@ -701,21 +708,11 @@ input {
 .rule-check {
   width: 16px;
   height: 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  position: relative;
-}
-
-.rule-check.done::before {
-  content: "";
-  position: absolute;
-  left: 4px;
-  top: 1px;
-  width: 5px;
-  height: 9px;
-  border-right: 1.5px solid rgba(255, 255, 255, 0.85);
-  border-bottom: 1.5px solid rgba(255, 255, 255, 0.85);
-  transform: rotate(40deg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  flex: 0 0 auto;
 }
 
 .divider-row {
@@ -733,7 +730,9 @@ input {
 }
 
 .divider-row span {
+  font-family: "Satoshi", var(--font-body), sans-serif;
   font-size: 14px;
+  line-height: 20px;
   color: var(--text);
 }
 
@@ -741,13 +740,19 @@ input {
   display: flex;
   justify-content: center;
   gap: 24px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .auth-option {
   display: inline-flex;
   align-items: center;
   gap: 12px;
+}
+
+.auth-option-separator {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .auth-option-chip {
@@ -760,7 +765,14 @@ input {
   place-items: center;
 }
 
+.auth-option-chip svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
 .auth-option-label {
+  font-family: "Satoshi", var(--font-body), sans-serif;
   font-size: 14px;
   line-height: 20px;
 }
@@ -768,12 +780,46 @@ input {
 .auth-switch {
   color: var(--text);
   text-align: center;
+  font-family: var(--font-display), sans-serif;
   font-size: 16px;
   line-height: 20px;
+  letter-spacing: 0;
 }
 
 .auth-switch span {
   color: var(--muted);
+  font-weight: 400;
+}
+
+.auth-switch strong {
+  font-weight: 700;
+}
+
+.signup-modal .gradient-button.large {
+  min-height: 48px;
+  padding: 12px 64px;
+  border-color: var(--pink);
+  font-family: var(--font-display), sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.signup-modal .gradient-button.dimmed {
+  opacity: 0.5;
+}
+
+.signup-modal .close-icon {
+  color: rgba(255, 255, 250, 0.84);
+}
+
+.signup-modal .close-icon svg,
+.signup-modal .info-dot svg,
+.signup-modal .rule-check svg,
+.signup-modal .eye-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .wallet-grid {

@@ -454,6 +454,61 @@ function CloseGlyph() {
   );
 }
 
+function InfoGlyph() {
+  return (
+    <svg aria-hidden="true" fill="none" viewBox="0 0 18 18">
+      <circle cx="9" cy="9" r="7.25" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M9 7.25v4.1" stroke="currentColor" strokeLinecap="round" strokeWidth="1.2" />
+      <circle cx="9" cy="5.25" fill="currentColor" r=".9" />
+    </svg>
+  );
+}
+
+function CheckCircleGlyph() {
+  return (
+    <svg aria-hidden="true" fill="none" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="6.75" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M5.25 8.2 7.15 10.1 10.85 6.15" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+function EyeOpenGlyph() {
+  return (
+    <svg aria-hidden="true" fill="none" viewBox="0 0 16 16">
+      <path
+        d="M1.5 8c1.42-2.32 3.57-3.5 6.5-3.5S13.08 5.68 14.5 8c-1.42 2.32-3.57 3.5-6.5 3.5S2.92 10.32 1.5 8Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.2"
+      />
+      <circle cx="8" cy="8" fill="currentColor" r="1.4" />
+    </svg>
+  );
+}
+
+function GoogleGlyph() {
+  return (
+    <svg aria-hidden="true" fill="none" viewBox="0 0 20 20">
+      <path d="M17.85 10.23c0-.57-.05-.97-.15-1.38H10v2.77h4.53c-.09.69-.58 1.74-1.67 2.44l-.01.09 2.43 1.84.17.02c1.53-1.37 2.4-3.39 2.4-5.78Z" fill="#4285F4" />
+      <path d="M10 18c2.22 0 4.09-.72 5.45-1.96l-2.59-1.95c-.69.47-1.62.8-2.86.8-2.18 0-4.03-1.4-4.69-3.33l-.09.01-2.53 1.91-.03.08A8.24 8.24 0 0 0 10 18Z" fill="#34A853" />
+      <path d="M5.31 11.56A4.84 4.84 0 0 1 5.03 10c0-.54.1-1.06.27-1.56l-.01-.1-2.56-1.94-.08.04A7.87 7.87 0 0 0 1.8 10c0 1.28.31 2.49.85 3.56l2.66-2Z" fill="#FBBC05" />
+      <path d="M10 5.11c1.57 0 2.63.66 3.24 1.21l2.37-2.25C14.08 2.67 12.22 2 10 2 6.66 2 3.77 3.88 2.65 6.44l2.65 2c.67-1.93 2.51-3.33 4.7-3.33Z" fill="#EA4335" />
+    </svg>
+  );
+}
+
+function WalletGlyph() {
+  return (
+    <svg aria-hidden="true" fill="none" viewBox="0 0 20 20">
+      <path d="M3.25 6.25A2.25 2.25 0 0 1 5.5 4h7.25a2 2 0 0 1 1.52.7l1.48 1.73v8.07A1.5 1.5 0 0 1 14.25 16H5.5a2.25 2.25 0 0 1-2.25-2.25v-7.5Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.2" />
+      <path d="M3.4 7h12.2" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="13.1" cy="11.5" fill="currentColor" r="1.1" />
+    </svg>
+  );
+}
+
 function AuthModal({ variant, closeHref }: { variant: AuthVariant; closeHref?: string }) {
   const isSignup = variant === "signup-empty" || variant === "signup-filled";
   const filled = variant === "signup-filled" || variant === "login-filled";
@@ -463,7 +518,7 @@ function AuthModal({ variant, closeHref }: { variant: AuthVariant; closeHref?: s
   const secondaryLabel = isSignup ? "Connect wallet" : "Connect wallet";
 
   return (
-    <div className="modal">
+    <div className={`modal${isSignup ? " signup-modal" : ""}`}>
       <div className="modal-body">
         <div className="modal-header">
           <div className="modal-title-wrap">
@@ -482,7 +537,9 @@ function AuthModal({ variant, closeHref }: { variant: AuthVariant; closeHref?: s
 
         {isSignup ? (
           <div className="info-banner">
-            <span className="info-dot" aria-hidden="true" />
+            <span className="info-dot" aria-hidden="true">
+              <InfoGlyph />
+            </span>
             <span>A wallet address on Solana will be created for you.</span>
           </div>
         ) : null}
@@ -507,19 +564,27 @@ function AuthModal({ variant, closeHref }: { variant: AuthVariant; closeHref?: s
             <div className="password-rules">
               <div className="rule-list">
                 <div className="rule-title">
-                  <span className="info-dot" aria-hidden="true" />
+                  <span className="info-dot" aria-hidden="true">
+                    <InfoGlyph />
+                  </span>
                   <span>Your password:</span>
                 </div>
                 <div className="rule-item">
-                  <span className="rule-check done" aria-hidden="true" />
+                  <span className="rule-check done" aria-hidden="true">
+                    <CheckCircleGlyph />
+                  </span>
                   <span>Must be at least 8-digits long</span>
                 </div>
                 <div className="rule-item">
-                  <span className="rule-check done" aria-hidden="true" />
+                  <span className="rule-check done" aria-hidden="true">
+                    <CheckCircleGlyph />
+                  </span>
                   <span>Must include an Upper Case Character</span>
                 </div>
                 <div className="rule-item">
-                  <span className="rule-check done" aria-hidden="true" />
+                  <span className="rule-check done" aria-hidden="true">
+                    <CheckCircleGlyph />
+                  </span>
                   <span>Mut Special Character</span>
                 </div>
               </div>
@@ -537,11 +602,16 @@ function AuthModal({ variant, closeHref }: { variant: AuthVariant; closeHref?: s
 
         <div className="social-row">
           <div className="auth-option">
-            <span className="auth-option-chip">G</span>
+            <span className="auth-option-chip" aria-hidden="true">
+              <GoogleGlyph />
+            </span>
             <span className="auth-option-label">Google</span>
           </div>
+          <span className="auth-option-separator" aria-hidden="true" />
           <div className="auth-option">
-            <span className="auth-option-chip">{isSignup ? "W" : "W"}</span>
+            <span className="auth-option-chip" aria-hidden="true">
+              <WalletGlyph />
+            </span>
             <span className="auth-option-label">{secondaryLabel}</span>
           </div>
         </div>
@@ -571,7 +641,11 @@ function TextField({
       <label>{label}</label>
       <div className="text-input">
         <input aria-label={label} defaultValue={defaultValue} placeholder={placeholder} readOnly />
-        {password ? <span className="eye-icon" aria-hidden="true">o</span> : null}
+        {password ? (
+          <span className="eye-icon" aria-hidden="true">
+            <EyeOpenGlyph />
+          </span>
+        ) : null}
       </div>
     </div>
   );

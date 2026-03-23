@@ -1,11 +1,11 @@
-# Homepage Modal Viewport Fit Plan
+# Homepage Signup Modal Fidelity Plan
 
-- [x] Reposition the signup modal overlay so the dialog centers within the viewport instead of starting too low.
-- [x] Constrain the modal height to the viewport so hidden content stays reachable on shorter screens.
-- [x] Build the project to verify the modal viewport-fit fix, then commit and push the completed feature.
+- [x] Tighten the homepage signup modal typography, spacing, and control sizing to the Figma frame.
+- [x] Replace the generic placeholder marks with proper signup-modal glyphs for close, info, password visibility, Google, and wallet.
+- [x] Build the project to verify the homepage signup modal fidelity update, then commit and push the completed feature.
 
 # Review
 
-- The signup modal now centers within the viewport instead of using the previous fixed top offset.
-- The modal is capped to viewport height and can scroll internally if a shorter screen still cannot fit the full dialog.
-- Verified the modal viewport-fit update with `npm run build`, which completed successfully.
+- Tightened the signup modal internals so the header, info row, inputs, password checklist, CTA, divider, and provider row are closer to the Figma modal.
+- Replaced the generic text placeholders for modal controls with proper glyphs so the modal reads more like the design system in the Figma frame.
+- Verified the homepage signup modal fidelity update with `npm run build`, which completed successfully.
