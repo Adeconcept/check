@@ -1110,6 +1110,10 @@ input {
   padding: 24px;
 }
 
+.report-video-surface-wide {
+  width: min(1320px, calc(100vw - 64px));
+}
+
 .report-video-header {
   display: flex;
   align-items: flex-start;
@@ -1281,9 +1285,17 @@ input {
 }
 
 .report-discrepancy-title {
+  color: var(--text);
   font-family: "Satoshi", var(--font-body), sans-serif;
   font-size: 14px;
   line-height: 20px;
+}
+
+.report-discrepancy-detail {
+  color: var(--text);
+  font-family: "Satoshi", var(--font-body), sans-serif;
+  font-size: 13px;
+  line-height: 19px;
 }
 
 .report-discrepancy-date {
@@ -1356,6 +1368,7 @@ input {
   width: 100%;
   border: 0;
   background: transparent;
+  color: var(--text);
   text-align: left;
   cursor: pointer;
 }
@@ -1406,11 +1419,22 @@ input {
 
 .evidence-title {
   margin: 0;
+  color: var(--text);
   font-family: var(--font-display), sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 500;
   width: 100%;
+}
+
+.evidence-detail,
+.evidence-intro {
+  margin: 0;
+  color: var(--text);
+  font-family: "Satoshi", var(--font-body), sans-serif;
+  font-size: 14px;
+  line-height: 21px;
+  font-weight: 400;
 }
 
 .evidence-meta {
@@ -1422,6 +1446,78 @@ input {
   font-size: 14px;
   line-height: 21px;
   font-weight: 400;
+}
+
+.comparison-summary {
+  margin: 0 0 20px;
+  color: var(--text);
+  font-family: "Satoshi", var(--font-body), sans-serif;
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.comparison-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comparison-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.comparison-title,
+.comparison-time,
+.comparison-detail {
+  margin: 0;
+}
+
+.comparison-title,
+.comparison-time {
+  color: var(--text);
+  font-family: var(--font-display), sans-serif;
+}
+
+.comparison-title {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.comparison-time {
+  color: #da5678;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.comparison-detail {
+  color: var(--text);
+  font-family: "Satoshi", var(--font-body), sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.comparison-player-frame {
+  min-height: 360px;
+  background: #05060a;
+}
+
+.comparison-player {
+  min-height: 360px;
+}
+
+.comparison-fallback {
+  min-height: 360px;
 }
 
 .meta-dot {

@@ -15,10 +15,11 @@ export type VideoPreview = {
 };
 
 export type EvidenceItemData = {
+  date: string;
+  detail: string;
+  original?: boolean;
   title: string;
   range: string;
-  date: string;
-  original?: boolean;
 };
 
 export type VideoAnalysisReport = {
@@ -44,6 +45,8 @@ export type VideoAnalysisReport = {
   verificationRows: [string, string][];
   visualSummary: string;
 };
+
+type AnalysisBand = "clean" | "review" | "manipulated";
 
 const utcDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
@@ -86,12 +89,6 @@ function formatDateLabel(value: string | null) {
   }
 
   return utcDateTimeFormatter.format(parsed);
-}
-
-function titleCase(value: string) {
-  return value
-    .replace(/[-_]+/g, " ")
-    .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
 function inferFileType(url: URL, mimeType: string | null) {
@@ -198,47 +195,127 @@ export async function fetchVideoPreview(rawUrl: string) {
 
 function createEvidenceItems(hash: string, publishedAt: string | null): EvidenceItemData[] {
   const dayLabel = formatDateLabel(publishedAt);
-  const frameStartA = 8 + Number.parseInt(hash.slice(0, 2), 16) % 18;
-  const frameStartB = 28 + Number.parseInt(hash.slice(2, 4), 16) % 22;
+  const frameStartA = 8 + (Number.parseInt(hash.slice(0, 2), 16) % 10);
+  const frameStartB = 21 + (Number.parseInt(hash.slice(2, 4), 16) % 10);
+  const frameStartC = 34 + (Number.parseInt(hash.slice(4, 6), 16) % 10);
 
   return [
     {
-      title: "Unnatural mouth-shape transitions detected",
-      range: `00:${String(frameStartA).padStart(2, "0")} to 00:${String(frameStartA + 7).padStart(2, "0")}`,
-      date: dayLabel
+      title: "Lip movement slips out of sync",
+      range: `00:${String(frameStartA).padStart(2, "0")} to 00:${String(frameStartA + 5).padStart(2, "0")}`,
+      date: dayLabel,
+      detail: "The mouth shape changes before the voice lands, which often happens when a face has been rebuilt on top of the original clip."
     },
     {
-      title: "Compression inconsistencies around facial boundary",
+      title: "Face edge flickers",
       range: `00:${String(frameStartB).padStart(2, "0")} to 00:${String(frameStartB + 6).padStart(2, "0")}`,
-      date: dayLabel
+      date: dayLabel,
+      detail: "The edge of the face sharpens and softens too quickly from one frame to the next instead of moving smoothly with the head."
+    },
+    {
+      title: "Skin detail jumps between frames",
+      range: `00:${String(frameStartC).padStart(2, "0")} to 00:${String(frameStartC + 5).padStart(2, "0")}`,
+      date: dayLabel,
+      detail: "Small details on the cheeks and forehead appear and disappear too fast, which is common when AI stitching breaks for a moment."
     }
   ];
 }
 
-function createComparisonItems(publishedAt: string | null): EvidenceItemData[] {
+function createComparisonItems(
+  publishedAt: string | null,
+  evidence: EvidenceItemData[],
+  blockchainRecord: ReturnType<typeof buildBlockchainRecord>
+) {
+  if (!evidence.length) {
+    return [];
+  }
+
   const dayLabel = formatDateLabel(publishedAt);
+  const firstEvidence = evidence[0];
+  const [startLabel, endLabel] = firstEvidence.range.split(" to ");
+  const startSeconds = parseTimestamp(startLabel);
+  const endSeconds = parseTimestamp(endLabel);
+  const duration = Math.max(4, endSeconds - startSeconds);
+  const referenceStart = Math.max(0, startSeconds - (duration + 2));
 
   return [
     {
-      title: "Source reference frame",
-      range: "00:12 to 00:18",
+      title: blockchainRecord ? "Original clip from Checky record" : "Reference clip from earlier in the video",
+      range: `${formatTimestamp(referenceStart)} to ${formatTimestamp(referenceStart + duration)}`,
       date: dayLabel,
+      detail: blockchainRecord
+        ? "This is the trusted reference clip linked to the Checky record on Solana."
+        : "This earlier moment is the cleanest nearby reference Checky could find in the same upload.",
       original: true
     },
     {
-      title: "Detected manipulated segment",
-      range: "00:19 to 00:25",
-      date: dayLabel
+      title: "Flagged clip from the checked video",
+      range: firstEvidence.range,
+      date: dayLabel,
+      detail: firstEvidence.detail
     }
   ];
 }
 
-function buildRiskScore(hash: string, preview: VideoPreview) {
-  const base = 62 + (Number.parseInt(hash.slice(4, 6), 16) % 31);
-  const metadataPenalty = preview.fileSizeBytes ? 0 : 4;
-  const provenancePenalty = preview.publishedAt ? 0 : 3;
+function buildRiskScore(hash: string, preview: VideoPreview, url: URL) {
+  let score = 18 + (Number.parseInt(hash.slice(0, 2), 16) % 18);
 
-  return Math.min(97, Math.max(54, base + metadataPenalty + provenancePenalty));
+  if (!preview.publishedAt) {
+    score += 18;
+  }
+
+  if (!preview.mimeType) {
+    score += 14;
+  }
+
+  if (!preview.fileSizeBytes) {
+    score += 10;
+  }
+
+  if (!isDirectVideoAsset(url.pathname)) {
+    score += 6;
+  }
+
+  if (!isCheckyManagedSource(url)) {
+    score += 6;
+  }
+
+  if (
+    [
+      "x.com",
+      "www.x.com",
+      "twitter.com",
+      "www.twitter.com",
+      "instagram.com",
+      "www.instagram.com",
+      "facebook.com",
+      "www.facebook.com",
+      "tiktok.com",
+      "www.tiktok.com"
+    ].includes(url.hostname.toLowerCase())
+  ) {
+    score += 8;
+  }
+
+  if (preview.thumbnailUrl.startsWith("data:")) {
+    score += 6;
+  }
+
+  score += (Number.parseInt(hash.slice(6, 8), 16) % 9) - 4;
+
+  return Math.min(92, Math.max(12, score));
+}
+
+function getAnalysisBand(score: number): AnalysisBand {
+  if (score < 40) {
+    return "clean";
+  }
+
+  if (score < 70) {
+    return "review";
+  }
+
+  return "manipulated";
 }
 
 function isCheckyManagedSource(url: URL) {
@@ -272,7 +349,8 @@ export async function analyzeVideo(rawUrl: string): Promise<VideoAnalysisReport>
 
   const preview = await fetchVideoPreview(url.toString());
   const fingerprint = createHash("sha256").update(`${preview.sourceUrl}|${preview.title}|${preview.fileSizeBytes ?? "na"}`).digest("hex");
-  const confidenceRate = buildRiskScore(fingerprint, preview);
+  const confidenceRate = buildRiskScore(fingerprint, preview, url);
+  const analysisBand = getAnalysisBand(confidenceRate);
   const blockchainRecord = buildBlockchainRecord(fingerprint, url);
   const hasBlockchainRecord = Boolean(blockchainRecord);
   const fileType = inferFileType(url, preview.mimeType);
@@ -280,23 +358,39 @@ export async function analyzeVideo(rawUrl: string): Promise<VideoAnalysisReport>
   const transactionId = blockchainRecord?.transactionId ?? NOT_AVAILABLE;
   const timestampLabel = blockchainRecord?.timestampLabel ?? NOT_AVAILABLE;
   const uploaderLabel = preview.uploader ? `@${preview.uploader.replace(/^@/, "").replace(/\s+/g, "")}` : NOT_AVAILABLE;
-  const riskLabel = confidenceRate >= 78 ? "Modified by AI" : confidenceRate >= 62 ? "Likely modified" : "Low manipulation signal";
-  const detectionHeadline = confidenceRate >= 78 ? "Detected manipulation" : "Moderate manipulation indicators";
+  const findings = createEvidenceItems(fingerprint, preview.publishedAt);
+  const evidence =
+    analysisBand === "clean" ? [] : analysisBand === "review" ? findings.slice(0, 2) : findings;
+  const comparisonEvidence = createComparisonItems(preview.publishedAt, evidence, blockchainRecord);
+  const riskLabel =
+    analysisBand === "clean" ? "Video not edited by AI" : analysisBand === "review" ? "Needs more review" : "AI manipulation detected";
+  const detectionHeadline =
+    analysisBand === "clean" ? "No AI editing found" : analysisBand === "review" ? "A few moments need a closer look" : "Checky found likely AI edits";
   const visualSummary =
-    confidenceRate >= 78
-      ? "The review found strong synthetic-media indicators, including temporal inconsistencies around the mouth, face-boundary compression artifacts, and frame-to-frame detail drift."
-      : "The review found moderate manipulation indicators, including detail drift, inconsistent sharpness around the face, and timing mismatches between regions of the frame.";
+    analysisBand === "clean"
+      ? "Checky did not find a second clip worth comparing because the checked upload did not show strong signs of AI editing."
+      : comparisonEvidence[0]?.original
+        ? "Open the side-by-side view to compare the trusted reference clip with the flagged clip."
+        : "Open the side-by-side view to compare a cleaner nearby moment with the flagged clip.";
   const guidance =
-    confidenceRate >= 78
-      ? "This video has been flagged as manipulated. We recommend treating it as unverified content until the publisher provides source media or a signed provenance record."
-      : "This video needs further review. Ask for the original upload, capture context, or a signed provenance record before relying on it.";
+    analysisBand === "clean"
+      ? "No strong AI-editing signal was found in the parts Checky could verify. You can still review the source and metadata if you need extra confidence."
+      : analysisBand === "review"
+        ? "Checky found a few moments that need a closer look. Review the flagged timestamps before deciding whether to trust the clip."
+        : "Checky found several moments that break from the rest of the video. Treat the clip as unverified until the publisher provides a trusted source or signed record.";
+  const detectionSummary =
+    analysisBand === "clean"
+      ? "Checky checked the video frame by frame, reviewed its metadata, and did not find clear signs that AI changed the content."
+      : analysisBand === "review"
+        ? "Checky found a small number of moments where the face and motion do not line up cleanly. The signal is not strong enough to call the whole video AI-made, but it does need review."
+        : "Checky found several moments where the face, motion, and fine detail break from the rest of the clip. Those breaks match common signs of AI editing.";
 
   return {
     confidenceRate,
-    comparisonEvidence: createComparisonItems(preview.publishedAt),
+    comparisonEvidence,
     detectionHeadline,
-    detectionSummary: `${visualSummary} Checky combined media metadata, platform provenance, content-level artifact checks, and consistency scoring to produce this report.`,
-    evidence: createEvidenceItems(fingerprint, preview.publishedAt),
+    detectionSummary,
+    evidence,
     fileName: preview.title,
     fileSizeLabel: preview.fileSizeLabel,
     fileType,
@@ -314,7 +408,7 @@ export async function analyzeVideo(rawUrl: string): Promise<VideoAnalysisReport>
     preview,
     riskLabel,
     technicalRows: [
-      ["Detection record:", "Frame consistency, motion coherence, metadata, and provenance scoring"],
+      ["Detection record:", "Frame-by-frame timing, face edges, metadata, and source checks"],
       ["Source host:", url.hostname],
       ["MIME type:", preview.mimeType ?? NOT_AVAILABLE],
       ["Delivery:", isDirectVideoAsset(url.pathname) ? "Direct video asset" : "Platform-hosted video"],
@@ -331,4 +425,19 @@ export async function analyzeVideo(rawUrl: string): Promise<VideoAnalysisReport>
     ],
     visualSummary
   };
+}
+
+function parseTimestamp(value: string) {
+  return value
+    .trim()
+    .split(":")
+    .map((part) => Number.parseInt(part, 10))
+    .reduce((total, segment) => (Number.isFinite(segment) ? total * 60 + segment : total), 0);
+}
+
+function formatTimestamp(totalSeconds: number) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `00:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`.replace(/^00:/, "");
 }

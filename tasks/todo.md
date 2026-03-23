@@ -1,13 +1,13 @@
-# Report Metadata Cleanup Plan
+# Report Findings And Comparison Plan
 
-- [x] Reduce the report page heavy text to semibold and keep the gauge percentage unchanged.
-- [x] Add timezone-aware date labels, truncate the original source link to one clickable line, and use `–` for unavailable fetched values.
-- [x] Gate blockchain metadata so it only appears for Checky-managed provenance records and expand the technical details with fetched video properties.
-- [x] Build the project to verify the metadata cleanup, then commit and push the completed feature.
+- [x] Rework the analysis model so report states can show clean, review, or AI-manipulated outcomes with simple user-facing language.
+- [x] Replace the placeholder evidence copy with timestamped findings that stay readable and match the clickable review moments.
+- [x] Add a side-by-side comparison modal for reference-vs-flagged clips and hide manipulation evidence when no AI-editing signal is found.
+- [x] Build the project to verify the new report behavior, then commit and push the completed feature.
 
 # Review
 
-- Reduced the report page’s bold typography to semibold while leaving the gauge percentage untouched.
-- Added UTC timezone labels to fetched dates and made long source URLs truncate to one clickable line.
-- Reworked blockchain rows so only Checky-managed sources generate a Solana explorer record, while unavailable fetched data now renders as `–`.
-- Verified the metadata update with `npm run build`, which completed successfully.
+- Reworked the report logic so it can now return `Video not edited by AI`, `Needs more review`, or `AI manipulation detected`.
+- Replaced the jargon-heavy evidence copy with simple descriptions tied to exact clickable timestamps and kept that evidence hidden when no manipulation signal is found.
+- Added a side-by-side comparison view that opens reference and flagged clips together when a comparison is available.
+- Verified the report update with `npm run build`, which completed successfully.
