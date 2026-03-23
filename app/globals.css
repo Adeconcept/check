@@ -189,7 +189,7 @@ input {
   align-items: center;
   gap: 64px;
   width: min(998px, calc(100vw - 48px));
-  margin: 126px auto 0;
+  margin: 138px auto 0;
   text-align: center;
 }
 
@@ -201,14 +201,14 @@ input {
 }
 
 .hero-title {
-  width: 998px;
+  width: 936px;
   max-width: 100%;
   margin: 0;
   font-family: var(--font-display), sans-serif;
   font-size: 64px;
   line-height: 64px;
   font-weight: 700;
-  letter-spacing: -0.055em;
+  letter-spacing: 0;
   font-variation-settings: "wght" 700;
 }
 

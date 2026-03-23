@@ -113,7 +113,7 @@ export async function CheckyScreen({
   }
 
   return (
-    <BaseScreen showHeroOrbit>
+    <BaseScreen>
       <LandingHero mode={mode} />
       <Footer />
     </BaseScreen>
