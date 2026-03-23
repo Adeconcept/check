@@ -11,13 +11,14 @@ const START_ANGLE = 196;
 const END_ANGLE = 344;
 const SEGMENT_COUNT = 30;
 
-export function ReportConfidenceGauge({ confidenceRate }: { confidenceRate: number }) {
-  const value = Number.isFinite(confidenceRate) ? Math.min(100, Math.max(0, confidenceRate)) : 0;
-  const segments = buildSegments();
-  const needle = buildNeedle(value);
+export function ReportConfidenceGauge({ confidenceRate }: { confidenceRate: number | null }) {
+  const hasValue = typeof confidenceRate === "number" && Number.isFinite(confidenceRate);
+  const value = hasValue ? Math.min(100, Math.max(0, confidenceRate)) : 50;
+  const segments = buildSegments(hasValue);
+  const needle = hasValue ? buildNeedle(value) : null;
 
   return (
-    <div className="confidence" aria-label={`Confidence rate ${value}%`} role="img">
+    <div className="confidence" aria-label={hasValue ? `Confidence rate ${value}%` : "Confidence rate unavailable"} role="img">
       <svg className="confidence-svg" viewBox="0 0 235 182" aria-hidden="true">
         {segments.map((segment) => (
           <path
@@ -30,28 +31,28 @@ export function ReportConfidenceGauge({ confidenceRate }: { confidenceRate: numb
           />
         ))}
 
-        <path d={needle.path} fill="#353535" opacity="0.98" />
+        {needle ? <path d={needle.path} fill="#353535" opacity="0.98" /> : null}
         <circle cx={CENTER_X} cy={CENTER_Y} fill="#8D8D8D" r="8.5" />
 
         <text className="confidence-value-svg" textAnchor="middle" x={CENTER_X} y="154">
-          {value}%
+          {hasValue ? `${value}%` : "–"}
         </text>
 
-        <text className="confidence-label-low-svg" x="18" y="130">
+        <text className={hasValue ? "confidence-label-low-svg" : "confidence-label-muted-svg"} x="18" y="130">
           <tspan x="18" dy="0">
-            Low
+            {hasValue ? "Low" : "No verified"}
           </tspan>
           <tspan x="18" dy="13">
-            confidence
+            {hasValue ? "confidence" : "result"}
           </tspan>
         </text>
 
-        <text className="confidence-label-high-svg" textAnchor="end" x="217" y="130">
+        <text className={hasValue ? "confidence-label-high-svg" : "confidence-label-muted-svg"} textAnchor="end" x="217" y="130">
           <tspan x="217" dy="0">
-            Extreme
+            {hasValue ? "Extreme" : "Not a"}
           </tspan>
           <tspan x="217" dy="13">
-            confidence
+            {hasValue ? "confidence" : "verdict"}
           </tspan>
         </text>
       </svg>
@@ -59,7 +60,7 @@ export function ReportConfidenceGauge({ confidenceRate }: { confidenceRate: numb
   );
 }
 
-function buildSegments() {
+function buildSegments(hasValue: boolean) {
   return Array.from({ length: SEGMENT_COUNT }, (_, index) => {
     const ratio = index / (SEGMENT_COUNT - 1);
     const angle = START_ANGLE + (END_ANGLE - START_ANGLE) * ratio;
@@ -71,7 +72,7 @@ function buildSegments() {
 
     return {
       path: `M ${innerX.toFixed(2)} ${innerY.toFixed(2)} L ${outerX.toFixed(2)} ${outerY.toFixed(2)}`,
-      stroke: interpolateSegmentColor(ratio)
+      stroke: hasValue ? interpolateSegmentColor(ratio) : "rgba(141, 141, 141, 0.45)"
     } satisfies Segment;
   });
 }

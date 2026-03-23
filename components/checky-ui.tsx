@@ -642,7 +642,7 @@ function ReportScreen({
         <section className="report-grid">
           <div>
             <div className="report-top">
-              <ReportConfidenceGauge confidenceRate={report?.confidenceRate ?? 0} />
+              <ReportConfidenceGauge confidenceRate={report?.confidenceRate ?? null} />
               <div className="stat-pair">
                 <div className="stat-block">
                   <span className="stat-label">Status:</span>
@@ -650,7 +650,7 @@ function ReportScreen({
                 </div>
                 <div className="stat-block">
                   <span className="stat-label">Confidence rate</span>
-                  <span className="stat-value">{report ? `${report.confidenceRate}%` : NOT_AVAILABLE}</span>
+                  <span className="stat-value">{typeof report?.confidenceRate === "number" ? `${report.confidenceRate}%` : NOT_AVAILABLE}</span>
                 </div>
               </div>
               <div className="stat-pair">

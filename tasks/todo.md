@@ -1,13 +1,13 @@
-# Universal Link Preview Plan
+# Truthful Report Guardrails Plan
 
-- [x] Remove the remaining host allowlist restriction so any public http(s) link can be analyzed after passing the security checks.
-- [x] Add layered preview extraction: provider oEmbed first, then page metadata scraping, then a safe generic fallback.
-- [x] Keep TikTok-specific preview and playback support while making the generic flow cover more providers consistently.
-- [x] Build the project to verify the universal preview update, then commit and push the completed feature.
+- [x] Remove the fabricated AI-confidence and manipulation claims from the report flow.
+- [x] Change the report to an honest metadata/provenance-only state when no verified forensic result exists.
+- [x] Update the gauge and evidence sections so they no longer imply a truthful AI verdict when none exists.
+- [x] Build the project to verify the truthfulness guardrail update, then commit and push the completed feature.
 
 # Review
 
-- Removed the public-host allowlist so Checky can accept any safe public URL instead of only a short platform list.
-- Added a generic HTML metadata fallback so more links can still return a thumbnail/title preview when oEmbed is unavailable.
-- Kept TikTok-specific oEmbed and playback support so TikTok still gets the stronger provider path when available.
-- Verified the universal preview update with `npm run build`, which completed successfully.
+- Removed the fabricated AI-detection verdicts and confidence score from the current report implementation.
+- Changed the report copy, gauge, and evidence sections so the app now says clearly when no verified forensic result exists.
+- Preserved real metadata, thumbnails, and provenance details while preventing false manipulation claims.
+- Verified the truthfulness guardrail update with `npm run build`, which completed successfully.

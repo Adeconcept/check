@@ -179,9 +179,13 @@ export function ReportVideoPanel({ report, shareHref }: ReportVideoPanelProps) {
             </>
           ) : (
             <>
-              <h2 className="section-title">No manipulation found</h2>
+              <h2 className="section-title">
+                {report.hasVerifiedForensicResult ? "No manipulation found" : "No verified forensic evidence"}
+              </h2>
               <p className="section-text evidence-intro">
-                Checky did not find a clear AI-editing pattern in the parts of this video it could verify.
+                {report.hasVerifiedForensicResult
+                  ? "Checky did not find a clear AI-editing pattern in the parts of this video it could verify."
+                  : "This build does not have a verified forensic result for this video yet, so Checky is not showing any manipulation claims."}
               </p>
             </>
           )}

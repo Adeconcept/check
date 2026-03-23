@@ -984,6 +984,14 @@ input {
   line-height: 1.6;
 }
 
+.confidence-label-muted-svg {
+  fill: var(--muted-2);
+  font-family: "Satoshi", var(--font-body), sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
 .stat-pair {
   display: flex;
   flex-direction: column;
