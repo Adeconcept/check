@@ -1,28 +1,34 @@
 const MAX_URL_LENGTH = 2048;
+const MAX_PATH_LENGTH = 1024;
+const MAX_QUERY_LENGTH = 1024;
+const MAX_HASH_LENGTH = 512;
+const MAX_QUERY_PARAM_COUNT = 40;
+const ALLOWED_PORTS = new Set(["", "80", "443"]);
 
-export const VIDEO_HOSTS = new Set([
+export const VIDEO_HOSTS = [
   "youtube.com",
-  "www.youtube.com",
-  "m.youtube.com",
   "youtu.be",
   "vimeo.com",
-  "www.vimeo.com",
   "tiktok.com",
-  "www.tiktok.com",
+  "vm.tiktok.com",
+  "vt.tiktok.com",
   "x.com",
-  "www.x.com",
   "twitter.com",
-  "www.twitter.com",
   "instagram.com",
-  "www.instagram.com",
   "facebook.com",
-  "www.facebook.com",
-  "loom.com",
-  "www.loom.com",
+  "fb.watch",
+  "threads.net",
+  "linkedin.com",
+  "reddit.com",
+  "snapchat.com",
   "twitch.tv",
-  "www.twitch.tv",
-  "drive.google.com"
-]);
+  "loom.com",
+  "drive.google.com",
+  "dailymotion.com",
+  "rumble.com",
+  "bsky.app",
+  "vk.com"
+] as const;
 
 export const DIRECT_VIDEO_EXTENSIONS = [".mp4", ".mov", ".m4v", ".webm", ".avi", ".mkv"];
 
@@ -34,6 +40,86 @@ export function isDirectVideoAsset(pathname: string) {
   const lowerPath = pathname.toLowerCase();
 
   return DIRECT_VIDEO_EXTENSIONS.some((extension) => lowerPath.endsWith(extension));
+}
+
+function matchesVideoHost(hostname: string) {
+  const normalized = hostname.toLowerCase();
+
+  return VIDEO_HOSTS.some((host) => normalized === host || normalized.endsWith(`.${host}`));
+}
+
+function isPrivateIpv4(hostname: string) {
+  const octets = hostname.split(".").map((segment) => Number.parseInt(segment, 10));
+
+  if (octets.length !== 4 || octets.some((octet) => !Number.isInteger(octet) || octet < 0 || octet > 255)) {
+    return false;
+  }
+
+  return (
+    octets[0] === 10 ||
+    octets[0] === 127 ||
+    (octets[0] === 169 && octets[1] === 254) ||
+    (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) ||
+    (octets[0] === 192 && octets[1] === 168)
+  );
+}
+
+function isPrivateIpv6(hostname: string) {
+  const normalized = hostname.toLowerCase();
+
+  return (
+    normalized === "::1" ||
+    normalized.startsWith("fc") ||
+    normalized.startsWith("fd") ||
+    normalized.startsWith("fe80:") ||
+    normalized.startsWith("::ffff:127.") ||
+    normalized.startsWith("::ffff:10.") ||
+    normalized.startsWith("::ffff:192.168.") ||
+    normalized.startsWith("::ffff:172.16.") ||
+    normalized.startsWith("::ffff:172.17.") ||
+    normalized.startsWith("::ffff:172.18.") ||
+    normalized.startsWith("::ffff:172.19.") ||
+    normalized.startsWith("::ffff:172.2") ||
+    normalized.startsWith("::ffff:172.30.") ||
+    normalized.startsWith("::ffff:172.31.")
+  );
+}
+
+function isIpv4Address(hostname: string) {
+  const octets = hostname.split(".");
+
+  return (
+    octets.length === 4 &&
+    octets.every((segment) => /^\d{1,3}$/.test(segment) && Number.parseInt(segment, 10) >= 0 && Number.parseInt(segment, 10) <= 255)
+  );
+}
+
+function isIpv6Address(hostname: string) {
+  return hostname.includes(":") && /^[0-9a-f:]+$/i.test(hostname);
+}
+
+function isPrivateOrLocalHost(hostname: string) {
+  const normalized = hostname.toLowerCase();
+
+  if (
+    normalized === "localhost" ||
+    normalized.endsWith(".localhost") ||
+    normalized.endsWith(".local") ||
+    normalized.endsWith(".localdomain") ||
+    normalized.endsWith(".internal")
+  ) {
+    return true;
+  }
+
+  if (isIpv4Address(normalized)) {
+    return isPrivateIpv4(normalized);
+  }
+
+  if (isIpv6Address(normalized)) {
+    return isPrivateIpv6(normalized);
+  }
+
+  return false;
 }
 
 export function validateVideoUrl(value: string) {
@@ -59,6 +145,10 @@ export function validateVideoUrl(value: string) {
     return { isValid: false, sanitized, reason: "Only http and https links are allowed." };
   }
 
+  if (!ALLOWED_PORTS.has(parsed.port)) {
+    return { isValid: false, sanitized, reason: "Only standard web ports are allowed." };
+  }
+
   if (parsed.username || parsed.password) {
     return { isValid: false, sanitized, reason: "Links with embedded credentials are not allowed." };
   }
@@ -67,11 +157,27 @@ export function validateVideoUrl(value: string) {
     return { isValid: false, sanitized, reason: "Hostname is invalid." };
   }
 
-  if (!VIDEO_HOSTS.has(parsed.hostname.toLowerCase()) && !isDirectVideoAsset(parsed.pathname)) {
+  if (!/^[a-z0-9.-]+$/i.test(parsed.hostname)) {
+    return { isValid: false, sanitized, reason: "Hostname contains invalid characters." };
+  }
+
+  if (isPrivateOrLocalHost(parsed.hostname)) {
+    return { isValid: false, sanitized, reason: "Private or local network links are not allowed." };
+  }
+
+  if (parsed.pathname.length > MAX_PATH_LENGTH || parsed.search.length > MAX_QUERY_LENGTH || parsed.hash.length > MAX_HASH_LENGTH) {
+    return { isValid: false, sanitized, reason: "Link is too long." };
+  }
+
+  if ([...parsed.searchParams.keys()].length > MAX_QUERY_PARAM_COUNT) {
+    return { isValid: false, sanitized, reason: "Link has too many query parameters." };
+  }
+
+  if (!matchesVideoHost(parsed.hostname) && !isDirectVideoAsset(parsed.pathname)) {
     return {
       isValid: false,
       sanitized,
-      reason: "Use a supported video platform link or a direct video file URL."
+      reason: "Use a supported social/video platform link or a public direct video file URL."
     };
   }
 
@@ -82,4 +188,3 @@ export function requireValidVideoUrl(value: string) {
   const validation = validateVideoUrl(value);
   return validation.isValid ? validation.parsed : null;
 }
-

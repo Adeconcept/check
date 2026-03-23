@@ -150,36 +150,48 @@ async function fetchDirectVideoPreview(url: URL): Promise<VideoPreview> {
 
 async function fetchEmbedPreview(url: URL): Promise<VideoPreview> {
   const noEmbedUrl = `https://noembed.com/embed?url=${encodeURIComponent(url.toString())}`;
-  const response = await fetch(noEmbedUrl, {
-    next: { revalidate: 3600 }
-  });
+  let data:
+    | {
+        author_name?: string;
+        error?: string;
+        provider_name?: string;
+        thumbnail_url?: string;
+        title?: string;
+        upload_date?: string;
+      }
+    | null = null;
 
-  if (!response.ok) {
-    throw new Error("Unable to fetch video metadata.");
+  try {
+    const response = await fetch(noEmbedUrl, {
+      next: { revalidate: 3600 }
+    });
+
+    if (response.ok) {
+      data = (await response.json()) as {
+        author_name?: string;
+        error?: string;
+        provider_name?: string;
+        thumbnail_url?: string;
+        title?: string;
+        upload_date?: string;
+      };
+    }
+  } catch {
+    data = null;
   }
 
-  const data = (await response.json()) as {
-    author_name?: string;
-    error?: string;
-    provider_name?: string;
-    thumbnail_url?: string;
-    title?: string;
-    upload_date?: string;
-  };
-
-  if (data.error) {
-    throw new Error(data.error);
-  }
+  const fallbackTitle = fileNameFromUrl(url);
+  const fallbackUploader = url.hostname;
 
   return {
     fileSizeBytes: null,
     fileSizeLabel: NOT_AVAILABLE,
     mimeType: null,
-    publishedAt: data.upload_date ?? null,
+    publishedAt: data?.upload_date ?? null,
     sourceUrl: url.toString(),
-    thumbnailUrl: data.thumbnail_url || placeholderThumbnail(data.title || data.author_name || fileNameFromUrl(url)),
-    title: data.title || data.author_name || fileNameFromUrl(url),
-    uploader: data.author_name || data.provider_name || url.hostname
+    thumbnailUrl: data?.thumbnail_url || placeholderThumbnail(data?.title || data?.author_name || fallbackTitle),
+    title: data?.title || data?.author_name || fallbackTitle,
+    uploader: data?.author_name || data?.provider_name || fallbackUploader
   };
 }
 
