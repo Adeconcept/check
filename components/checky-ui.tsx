@@ -701,6 +701,23 @@ function ReportScreen({
             />
 
             <MetaSection
+              title="Source Access"
+              rows={report?.retrievalRows ?? []}
+              extra={
+                <>
+                  <div className="meta-row">
+                    <span className="meta-key">Capability:</span>
+                    <span className="meta-value">{report?.analysisCapabilityLabel ?? NOT_AVAILABLE}</span>
+                  </div>
+                  <div className="meta-row">
+                    <span className="meta-key">Next step:</span>
+                    <span className="meta-value">{report?.nextAnalysisStep ?? NOT_AVAILABLE}</span>
+                  </div>
+                </>
+              }
+            />
+
+            <MetaSection
               title="Blockchain Verification"
               rows={report?.verificationRows ?? []}
               extra={

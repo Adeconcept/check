@@ -7,10 +7,10 @@ import { sanitizeVideoUrlCandidate } from "@/lib/video-url";
 const PROGRESS_MESSAGES = [
   { threshold: 12, label: "Checking the source link" },
   { threshold: 28, label: "Fetching video metadata" },
-  { threshold: 46, label: "Figuring things out" },
-  { threshold: 63, label: "Inspecting frame consistency" },
-  { threshold: 79, label: "Making it work" },
-  { threshold: 92, label: "Verifying provenance details" },
+  { threshold: 46, label: "Resolving playback access" },
+  { threshold: 63, label: "Checking whether media bytes are reachable" },
+  { threshold: 79, label: "Reviewing provenance details" },
+  { threshold: 92, label: "Preparing a truthful report" },
   { threshold: 100, label: "Preparing your report" }
 ];
 

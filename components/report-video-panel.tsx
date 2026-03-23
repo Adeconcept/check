@@ -132,6 +132,7 @@ export function ReportVideoPanel({ report, shareHref }: ReportVideoPanelProps) {
           <p className="eyebrow">Verification Details</p>
           <h2 className="section-title">{report.detectionHeadline}</h2>
           <p className="section-text">{report.detectionSummary}</p>
+          <p className="section-text evidence-intro">{report.analysisCapabilityLabel}</p>
         </div>
 
         <div className="section-rule" />
@@ -197,6 +198,7 @@ export function ReportVideoPanel({ report, shareHref }: ReportVideoPanelProps) {
           <p className="eyebrow">What to do next</p>
           <h2 className="section-title">User Guidance</h2>
           <p className="section-text">{report.guidance}</p>
+          <p className="section-text evidence-intro">{report.nextAnalysisStep}</p>
           <div className="cta-row">
             <button className="report-action-button report-action-button-inverse" type="button">
               Report video

@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { describeSourcePipeline } from "@/lib/video-source-pipeline";
 import { isDirectVideoAsset, requireValidVideoUrl } from "@/lib/video-url";
 
 export const NOT_AVAILABLE = "–";
@@ -23,6 +24,7 @@ export type EvidenceItemData = {
 };
 
 export type VideoAnalysisReport = {
+  analysisCapabilityLabel: string;
   confidenceRate: number | null;
   comparisonEvidence: EvidenceItemData[];
   detectionHeadline: string;
@@ -37,8 +39,11 @@ export type VideoAnalysisReport = {
   integrityStatus: string;
   mediaHash: string;
   metadataRows: [string, string][];
+  nextAnalysisStep: string;
+  playbackReadinessLabel: string;
   preview: VideoPreview;
   riskLabel: string;
+  retrievalRows: [string, string][];
   technicalRows: [string, string][];
   timestampLabel: string;
   transactionId: string;
@@ -353,6 +358,7 @@ export async function analyzeVideo(rawUrl: string): Promise<VideoAnalysisReport>
   const fingerprint = createHash("sha256").update(`${preview.sourceUrl}|${preview.title}|${preview.fileSizeBytes ?? "na"}`).digest("hex");
   const blockchainRecord = buildBlockchainRecord(fingerprint, url);
   const hasBlockchainRecord = Boolean(blockchainRecord);
+  const sourcePipeline = describeSourcePipeline(url, hasBlockchainRecord);
   const fileType = inferFileType(url, preview.mimeType);
   const mediaHash = `0x${fingerprint.slice(0, 12)}***${fingerprint.slice(-4)}`;
   const transactionId = blockchainRecord?.transactionId ?? NOT_AVAILABLE;
@@ -362,15 +368,30 @@ export async function analyzeVideo(rawUrl: string): Promise<VideoAnalysisReport>
   const confidenceRate = null;
   const evidence: EvidenceItemData[] = [];
   const comparisonEvidence: EvidenceItemData[] = [];
-  const riskLabel = "No verified AI verdict";
-  const detectionHeadline = "Forensic result unavailable";
+  const riskLabel =
+    sourcePipeline.verificationState === "provenance_verified"
+      ? "Provenance verified, forensic verdict unavailable"
+      : sourcePipeline.verificationState === "forensic_ready"
+        ? "Ready for forensic analysis"
+        : "Metadata only, no forensic verdict";
+  const detectionHeadline =
+    sourcePipeline.verificationState === "provenance_verified"
+      ? "Checky verified the source record, but not the AI-editing status"
+      : sourcePipeline.verificationState === "forensic_ready"
+        ? "This link is ready for byte-level analysis"
+        : "This link does not expose enough media access for a truthful verdict";
   const visualSummary = "No verified comparison is available because this build does not have a connected forensic verification service.";
   const guidance =
-    "Treat this report as metadata and provenance only. It should not be used as a final verdict on whether the video was AI-edited until a verified forensic service is connected.";
+    sourcePipeline.canRetrieveMediaBytes
+      ? "Checky can fetch the actual media for this link. The next step is to run a verified forensic engine before showing any real/fake verdict."
+      : "Checky can preview or read metadata from this link, but it still needs backend media retrieval before any truthful forensic verdict can be shown.";
   const detectionSummary =
-    "Checky can fetch source details, metadata, thumbnails, and provenance records, but this build does not have a verified forensic model connected. It cannot truthfully say whether this video was AI-edited or not.";
+    `${sourcePipeline.retrievalSummary} This build does not have a verified forensic model connected, so it cannot truthfully say whether the video was AI-edited or not.`;
 
   return {
+    analysisCapabilityLabel: sourcePipeline.canRetrieveMediaBytes
+      ? "Forensic pipeline ready once a verified model is connected"
+      : "Metadata/provenance only until backend media retrieval is added",
     confidenceRate,
     comparisonEvidence,
     detectionHeadline,
@@ -391,12 +412,21 @@ export async function analyzeVideo(rawUrl: string): Promise<VideoAnalysisReport>
       ["Upload Date:", formatDateLabel(preview.publishedAt)],
       ["Uploader:", uploaderLabel]
     ],
+    nextAnalysisStep: sourcePipeline.nextStep,
+    playbackReadinessLabel: sourcePipeline.canPreviewInApp ? "Preview available in Checky" : "External playback only",
     preview,
     riskLabel,
+    retrievalRows: [
+      ["Source access:", sourcePipeline.accessLevel.replace("_", " ")],
+      ["Playback:", sourcePipeline.playbackKind === "direct" ? "Direct in-app playback" : sourcePipeline.playbackKind === "embed" ? "Embedded in-app playback" : "External-only playback"],
+      ["Media bytes:", sourcePipeline.canRetrieveMediaBytes ? "Retrievable" : NOT_AVAILABLE],
+      ["Provider:", sourcePipeline.providerLabel]
+    ],
     technicalRows: [
       ["Detection mode:", "Metadata and provenance only"],
       ["AI model used:", NOT_AVAILABLE],
       ["Detection record:", "No verified forensic result is available in this build"],
+      ["Analysis capability:", sourcePipeline.canRetrieveMediaBytes ? "Ready for byte-level forensic checks" : "Waiting for backend media retrieval"],
       ["Source host:", url.hostname],
       ["MIME type:", preview.mimeType ?? NOT_AVAILABLE],
       ["Delivery:", isDirectVideoAsset(url.pathname) ? "Direct video asset" : "Platform-hosted video"],
