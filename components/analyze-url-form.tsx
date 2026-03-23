@@ -7,6 +7,37 @@ import type { VideoPreview } from "@/lib/video-analysis";
 import { VideoThumbnail } from "@/components/video-thumbnail";
 import { sanitizeVideoUrlCandidate, validateVideoUrl } from "@/lib/video-url";
 
+function buildLocalPreview(sourceUrl: string): VideoPreview {
+  const url = new URL(sourceUrl);
+  const title = url.pathname.split("/").filter(Boolean).pop() || url.hostname;
+  const safeTitle = title.replace(/[<>&"]/g, "");
+  const thumbnailSvg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+      <defs>
+        <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#4b3c34" />
+          <stop offset="45%" stop-color="#77756e" />
+          <stop offset="100%" stop-color="#232018" />
+        </linearGradient>
+      </defs>
+      <rect width="96" height="96" fill="url(#g)" />
+      <rect width="96" height="96" fill="rgba(43,43,43,0.55)" />
+      <text x="48" y="82" fill="#fffffa" font-family="Arial, sans-serif" font-size="9" text-anchor="middle">${safeTitle.slice(0, 12)}</text>
+    </svg>
+  `.trim();
+
+  return {
+    fileSizeBytes: null,
+    fileSizeLabel: "–",
+    mimeType: null,
+    publishedAt: null,
+    sourceUrl,
+    thumbnailUrl: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(thumbnailSvg)}`,
+    title,
+    uploader: url.hostname
+  };
+}
+
 function formatPreviewTitle(title: string, sourceUrl: string) {
   const url = new URL(sourceUrl);
   const rawTitle = title.trim();
@@ -55,6 +86,9 @@ export function AnalyzeUrlForm() {
     }
 
     const controller = new AbortController();
+    const fallbackPreview = buildLocalPreview(validation.sanitized);
+
+    setPreview(fallbackPreview);
 
     async function fetchPreview() {
       setIsLoadingPreview(true);
@@ -79,8 +113,8 @@ export function AnalyzeUrlForm() {
           return;
         }
 
-        setPreview(null);
-        setPreviewError(error instanceof Error ? error.message : "Unable to fetch video metadata.");
+        setPreview(fallbackPreview);
+        setPreviewError("Showing a basic preview while extra details are unavailable.");
       } finally {
         if (!controller.signal.aborted) {
           setIsLoadingPreview(false);
@@ -129,7 +163,7 @@ export function AnalyzeUrlForm() {
           type="url"
           value={inputValue}
         />
-        <button className="gradient-button" disabled={!validation.isValid || !preview || isLoadingPreview} type="submit">
+        <button className="gradient-button" disabled={!validation.isValid || !preview} type="submit">
           Analyze
         </button>
       </div>
