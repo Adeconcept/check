@@ -5,31 +5,6 @@ const MAX_HASH_LENGTH = 512;
 const MAX_QUERY_PARAM_COUNT = 40;
 const ALLOWED_PORTS = new Set(["", "80", "443"]);
 
-export const VIDEO_HOSTS = [
-  "youtube.com",
-  "youtu.be",
-  "vimeo.com",
-  "tiktok.com",
-  "vm.tiktok.com",
-  "vt.tiktok.com",
-  "x.com",
-  "twitter.com",
-  "instagram.com",
-  "facebook.com",
-  "fb.watch",
-  "threads.net",
-  "linkedin.com",
-  "reddit.com",
-  "snapchat.com",
-  "twitch.tv",
-  "loom.com",
-  "drive.google.com",
-  "dailymotion.com",
-  "rumble.com",
-  "bsky.app",
-  "vk.com"
-] as const;
-
 export const DIRECT_VIDEO_EXTENSIONS = [".mp4", ".mov", ".m4v", ".webm", ".avi", ".mkv"];
 
 export function sanitizeVideoUrlCandidate(value: string) {
@@ -40,12 +15,6 @@ export function isDirectVideoAsset(pathname: string) {
   const lowerPath = pathname.toLowerCase();
 
   return DIRECT_VIDEO_EXTENSIONS.some((extension) => lowerPath.endsWith(extension));
-}
-
-function matchesVideoHost(hostname: string) {
-  const normalized = hostname.toLowerCase();
-
-  return VIDEO_HOSTS.some((host) => normalized === host || normalized.endsWith(`.${host}`));
 }
 
 function isPrivateIpv4(hostname: string) {
@@ -171,14 +140,6 @@ export function validateVideoUrl(value: string) {
 
   if ([...parsed.searchParams.keys()].length > MAX_QUERY_PARAM_COUNT) {
     return { isValid: false, sanitized, reason: "Link has too many query parameters." };
-  }
-
-  if (!matchesVideoHost(parsed.hostname) && !isDirectVideoAsset(parsed.pathname)) {
-    return {
-      isValid: false,
-      sanitized,
-      reason: "Use a supported social/video platform link or a public direct video file URL."
-    };
   }
 
   return { isValid: true, sanitized: parsed.toString(), reason: "", parsed };

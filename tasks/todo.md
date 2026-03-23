@@ -1,13 +1,13 @@
-# Homepage Social Video Input Hardening Plan
+# Universal Link Preview Plan
 
-- [x] Broaden homepage URL support so public video links from more social platforms are accepted.
-- [x] Harden server-side URL validation against private/local targets, invalid hostnames, oversized URL parts, unsafe ports, and excessive query strings.
-- [x] Make social-video preview fetching fail soft so unsupported providers still produce a safe generic preview instead of blocking analysis.
-- [x] Build the project to verify the input update, then commit and push the completed feature.
+- [x] Remove the remaining host allowlist restriction so any public http(s) link can be analyzed after passing the security checks.
+- [x] Add layered preview extraction: provider oEmbed first, then page metadata scraping, then a safe generic fallback.
+- [x] Keep TikTok-specific preview and playback support while making the generic flow cover more providers consistently.
+- [x] Build the project to verify the universal preview update, then commit and push the completed feature.
 
 # Review
 
-- Expanded the supported public social-video host matching so more social media video URLs pass homepage validation.
-- Added stricter URL safety checks to block malformed, local/private-network, or oversized input values before any server fetch happens.
-- Changed social preview fetching to fall back to a safe generic preview when provider metadata lookup is unavailable.
-- Verified the homepage input update with `npm run build`, which completed successfully.
+- Removed the public-host allowlist so Checky can accept any safe public URL instead of only a short platform list.
+- Added a generic HTML metadata fallback so more links can still return a thumbnail/title preview when oEmbed is unavailable.
+- Kept TikTok-specific oEmbed and playback support so TikTok still gets the stronger provider path when available.
+- Verified the universal preview update with `npm run build`, which completed successfully.

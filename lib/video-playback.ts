@@ -55,6 +55,19 @@ function getGoogleDriveId(url: URL) {
   return fileIndex === -1 ? null : segments[fileIndex + 1] ?? null;
 }
 
+function getTikTokId(url: URL) {
+  const segments = url.pathname.split("/").filter(Boolean);
+  const videoIndex = segments.findIndex((segment) => segment === "video");
+
+  if (videoIndex === -1) {
+    return null;
+  }
+
+  const candidate = segments[videoIndex + 1] ?? null;
+
+  return candidate && /^\d+$/.test(candidate) ? candidate : null;
+}
+
 export function getPlaybackConfig(rawUrl: string): PlaybackConfig {
   const url = new URL(rawUrl);
 
@@ -126,6 +139,22 @@ export function getPlaybackConfig(rawUrl: string): PlaybackConfig {
       kind: "iframe",
       seekStrategy: "query",
       sourceLabel: "Google Drive",
+      sourceUrl: url.toString(),
+      toSeekSrc
+    };
+  }
+
+  const tikTokId = getTikTokId(url);
+
+  if (tikTokId && url.hostname.includes("tiktok.com")) {
+    const toSeekSrc = () =>
+      `https://www.tiktok.com/player/v1/${tikTokId}?autoplay=1&description=0&music_info=0&rel=0&native_context_menu=1`;
+
+    return {
+      autoplaySrc: toSeekSrc(),
+      kind: "iframe",
+      seekStrategy: "query",
+      sourceLabel: "TikTok",
       sourceUrl: url.toString(),
       toSeekSrc
     };

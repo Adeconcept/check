@@ -149,36 +149,7 @@ async function fetchDirectVideoPreview(url: URL): Promise<VideoPreview> {
 }
 
 async function fetchEmbedPreview(url: URL): Promise<VideoPreview> {
-  const noEmbedUrl = `https://noembed.com/embed?url=${encodeURIComponent(url.toString())}`;
-  let data:
-    | {
-        author_name?: string;
-        error?: string;
-        provider_name?: string;
-        thumbnail_url?: string;
-        title?: string;
-        upload_date?: string;
-      }
-    | null = null;
-
-  try {
-    const response = await fetch(noEmbedUrl, {
-      next: { revalidate: 3600 }
-    });
-
-    if (response.ok) {
-      data = (await response.json()) as {
-        author_name?: string;
-        error?: string;
-        provider_name?: string;
-        thumbnail_url?: string;
-        title?: string;
-        upload_date?: string;
-      };
-    }
-  } catch {
-    data = null;
-  }
+  const data = (await fetchOEmbedPreview(url)) ?? (await fetchDocumentPreview(url));
 
   const fallbackTitle = fileNameFromUrl(url);
   const fallbackUploader = url.hostname;
@@ -193,6 +164,151 @@ async function fetchEmbedPreview(url: URL): Promise<VideoPreview> {
     title: data?.title || data?.author_name || fallbackTitle,
     uploader: data?.author_name || data?.provider_name || fallbackUploader
   };
+}
+
+async function fetchOEmbedPreview(url: URL) {
+  const providers = getOEmbedCandidates(url);
+
+  for (const providerUrl of providers) {
+    try {
+      const response = await fetch(providerUrl, {
+        headers: {
+          Accept: "application/json, text/plain;q=0.9, */*;q=0.8"
+        },
+        next: { revalidate: 3600 }
+      });
+
+      if (!response.ok) {
+        continue;
+      }
+
+      const data = (await response.json()) as {
+        author_name?: string;
+        error?: string;
+        provider_name?: string;
+        thumbnail_url?: string;
+        title?: string;
+        upload_date?: string;
+      };
+
+      if (!data.error) {
+        return data;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return null;
+}
+
+function getOEmbedCandidates(url: URL) {
+  const target = encodeURIComponent(url.toString());
+  const hostname = url.hostname.toLowerCase();
+
+  if (hostname.includes("tiktok.com")) {
+    return [`https://www.tiktok.com/oembed?url=${target}`];
+  }
+
+  return [`https://noembed.com/embed?url=${target}`];
+}
+
+async function fetchDocumentPreview(url: URL) {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "User-Agent": "Mozilla/5.0 (compatible; CheckyBot/1.0; +https://checky.ai)"
+      },
+      next: { revalidate: 3600 },
+      redirect: "follow"
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const contentType = response.headers.get("content-type") ?? "";
+
+    if (!contentType.includes("text/html")) {
+      return null;
+    }
+
+    const html = (await response.text()).slice(0, 250_000);
+    const title =
+      readMetaContent(html, "property", "og:title") ??
+      readMetaContent(html, "name", "twitter:title") ??
+      readMetaContent(html, "name", "title") ??
+      readDocumentTitle(html);
+    const thumbnailUrl =
+      readMetaContent(html, "property", "og:image") ??
+      readMetaContent(html, "name", "twitter:image") ??
+      readMetaContent(html, "property", "og:image:url");
+    const uploader =
+      readMetaContent(html, "property", "og:site_name") ??
+      readMetaContent(html, "name", "author") ??
+      readMetaContent(html, "property", "article:author");
+    const publishedAt =
+      readMetaContent(html, "property", "article:published_time") ??
+      readMetaContent(html, "property", "og:updated_time") ??
+      readMetaContent(html, "name", "date") ??
+      null;
+
+    return {
+      author_name: uploader ?? undefined,
+      provider_name: url.hostname,
+      thumbnail_url: thumbnailUrl ? toAbsoluteUrl(thumbnailUrl, url) : undefined,
+      title: title ?? undefined,
+      upload_date: publishedAt ?? undefined
+    };
+  } catch {
+    return null;
+  }
+}
+
+function readMetaContent(html: string, attributeName: "name" | "property", attributeValue: string) {
+  const escaped = attributeValue.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const directPattern = new RegExp(
+    `<meta[^>]*${attributeName}=["']${escaped}["'][^>]*content=["']([^"']+)["'][^>]*>`,
+    "i"
+  );
+  const reversePattern = new RegExp(
+    `<meta[^>]*content=["']([^"']+)["'][^>]*${attributeName}=["']${escaped}["'][^>]*>`,
+    "i"
+  );
+
+  const directMatch = html.match(directPattern);
+
+  if (directMatch?.[1]) {
+    return decodeHtmlEntityString(directMatch[1].trim());
+  }
+
+  const reverseMatch = html.match(reversePattern);
+
+  return reverseMatch?.[1] ? decodeHtmlEntityString(reverseMatch[1].trim()) : null;
+}
+
+function readDocumentTitle(html: string) {
+  const match = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+
+  return match?.[1] ? decodeHtmlEntityString(match[1].trim()) : null;
+}
+
+function decodeHtmlEntityString(value: string) {
+  return value
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
+function toAbsoluteUrl(candidate: string, baseUrl: URL) {
+  try {
+    return new URL(candidate, baseUrl).toString();
+  } catch {
+    return candidate;
+  }
 }
 
 export async function fetchVideoPreview(rawUrl: string) {
