@@ -1,11 +1,11 @@
-# Homepage Get Started Modal Plan
+# Homepage Modal Viewport Fit Plan
 
-- [x] Wire the homepage `Get started` button to open the Figma signup modal as an in-place overlay state.
-- [x] Render the homepage modal from URL state so it can open and close cleanly without adding client-only shell state.
-- [x] Build the project to verify the homepage modal flow, then commit and push the completed feature.
+- [x] Reposition the signup modal overlay so the dialog centers within the viewport instead of starting too low.
+- [x] Constrain the modal height to the viewport so hidden content stays reachable on shorter screens.
+- [x] Build the project to verify the modal viewport-fit fix, then commit and push the completed feature.
 
 # Review
 
-- Clicking `Get started` on the homepage now opens the Figma-style signup modal over the homepage using `/?modal=get-started`.
-- The modal close control now renders a real glyph and returns the user to the base homepage state.
-- Verified the homepage modal flow with `npm run build`, which completed successfully.
+- The signup modal now centers within the viewport instead of using the previous fixed top offset.
+- The modal is capped to viewport height and can scroll internally if a shorter screen still cannot fit the full dialog.
+- Verified the modal viewport-fit update with `npm run build`, which completed successfully.

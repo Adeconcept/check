@@ -528,6 +528,7 @@ input {
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  overflow-y: auto;
 }
 
 .overlay.centered {
@@ -535,15 +536,18 @@ input {
 }
 
 .overlay.modal-offset {
-  padding-top: 100px;
+  align-items: center;
+  padding: 24px 16px;
 }
 
 .modal {
   width: min(568px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
   border: 1px solid var(--panel-3);
   background: rgba(10, 11, 15, 0.98);
   padding: 24px;
   box-shadow: var(--shadow);
+  overflow-y: auto;
 }
 
 .modal.small {
