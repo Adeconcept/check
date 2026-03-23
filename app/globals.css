@@ -1010,7 +1010,7 @@ input {
   font-family: var(--font-display), sans-serif;
   font-size: 16px;
   line-height: 24px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .report-section {
@@ -1131,7 +1131,7 @@ input {
   font-family: var(--font-display), sans-serif;
   font-size: 28px;
   line-height: 36px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .report-video-close {
@@ -1319,7 +1319,7 @@ input {
   font-family: var(--font-display), sans-serif;
   font-size: 18px;
   line-height: 28px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .section-text,
@@ -1522,7 +1522,7 @@ input {
   font-family: var(--font-display), sans-serif;
   font-size: 14px;
   line-height: 24px;
-  font-weight: 700;
+  font-weight: 600;
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -1530,6 +1530,13 @@ input {
 .meta-link {
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.meta-link-truncate {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .verified-pill {

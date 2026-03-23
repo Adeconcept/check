@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { analyzeVideo, type VideoAnalysisReport } from "@/lib/video-analysis";
+import { analyzeVideo, NOT_AVAILABLE, type VideoAnalysisReport } from "@/lib/video-analysis";
 import { AnalyzeProgressScreen } from "@/components/analyze-progress-screen";
 import { HomepageAnalyzeSection } from "@/components/homepage-analyze-section";
 import { ReportConfidenceGauge } from "@/components/report-confidence-gauge";
@@ -646,21 +646,21 @@ function ReportScreen({
               <div className="stat-pair">
                 <div className="stat-block">
                   <span className="stat-label">Status:</span>
-                  <span className="stat-value">{report?.riskLabel ?? "No analysis available"}</span>
+                  <span className="stat-value">{report?.riskLabel ?? NOT_AVAILABLE}</span>
                 </div>
                 <div className="stat-block">
                   <span className="stat-label">Confidence rate</span>
-                  <span className="stat-value">{report ? `${report.confidenceRate}%` : "Unavailable"}</span>
+                  <span className="stat-value">{report ? `${report.confidenceRate}%` : NOT_AVAILABLE}</span>
                 </div>
               </div>
               <div className="stat-pair">
                 <div className="stat-block">
                   <span className="stat-label">File name:</span>
-                  <span className="stat-value">{report?.fileName ?? "Unavailable"}</span>
+                  <span className="stat-value">{report?.fileName ?? NOT_AVAILABLE}</span>
                 </div>
                 <div className="stat-block">
                   <span className="stat-label">File size</span>
-                  <span className="stat-value">{report?.fileSizeLabel ?? "Unavailable"}</span>
+                  <span className="stat-value">{report?.fileSizeLabel ?? NOT_AVAILABLE}</span>
                 </div>
               </div>
             </div>
@@ -678,11 +678,23 @@ function ReportScreen({
                 <>
                   <div className="meta-row">
                     <span className="meta-key">Original source:</span>
-                    <span className="meta-value verified-pill">{report?.preview.sourceUrl ?? "Unavailable"}</span>
+                    {report?.preview.sourceUrl ? (
+                      <a
+                        className="meta-value meta-link meta-link-truncate"
+                        href={report.preview.sourceUrl}
+                        rel="noreferrer"
+                        target="_blank"
+                        title={report.preview.sourceUrl}
+                      >
+                        {report.preview.sourceUrl}
+                      </a>
+                    ) : (
+                      <span className="meta-value">{NOT_AVAILABLE}</span>
+                    )}
                   </div>
                   <div className="meta-row">
                     <span className="meta-key">Media Hash:</span>
-                    <span className="meta-value">{report?.mediaHash ?? "Unavailable"}</span>
+                    <span className="meta-value">{report?.mediaHash ?? NOT_AVAILABLE}</span>
                   </div>
                 </>
               }
@@ -695,7 +707,13 @@ function ReportScreen({
                 <div className="meta-row">
                   <span className="meta-key">Record:</span>
                   <span className="meta-value meta-link">
-                    {report?.hasBlockchainRecord ? <Link href={report.transactionUrl}>Explore record</Link> : "No record found"}
+                    {report?.hasBlockchainRecord && report.transactionUrl ? (
+                      <a href={report.transactionUrl} rel="noreferrer" target="_blank">
+                        Explore record
+                      </a>
+                    ) : (
+                      NOT_AVAILABLE
+                    )}
                   </span>
                 </div>
               }
@@ -734,7 +752,7 @@ function MetaSection({
         {rows.map(([key, value]) => (
           <div className="meta-row" key={`${title}-${key}`}>
             <span className="meta-key">{key}</span>
-            <span className="meta-value">{value}</span>
+            <span className="meta-value">{value || NOT_AVAILABLE}</span>
           </div>
         ))}
         {extra}

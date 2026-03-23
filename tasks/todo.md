@@ -1,12 +1,13 @@
-# Report Video Thumbnail Cleanup Plan
+# Report Metadata Cleanup Plan
 
-- [x] Replace the synthetic report thumbnails with real media thumbnails where possible, using direct video frames and provider thumbnails as fallback.
-- [x] Reduce the main report play button to the smaller design-sized control and keep the evidence rows previewable.
-- [x] Build the project to verify the updated video section, then commit and push the completed feature.
+- [x] Reduce the report page heavy text to semibold and keep the gauge percentage unchanged.
+- [x] Add timezone-aware date labels, truncate the original source link to one clickable line, and use `–` for unavailable fetched values.
+- [x] Gate blockchain metadata so it only appears for Checky-managed provenance records and expand the technical details with fetched video properties.
+- [x] Build the project to verify the metadata cleanup, then commit and push the completed feature.
 
 # Review
 
-- Swapped the fake report thumbnail art for real media-driven thumbnails when the source is a direct video.
-- Kept hosted links on their fetched provider thumbnails and removed the baked-in play glyph from the SVG fallback artwork.
-- Reduced the hero play affordance to a smaller control closer to the Figma treatment while keeping evidence items clickable.
-- Verified the update with `npm run build`, which completed successfully.
+- Reduced the report page’s bold typography to semibold while leaving the gauge percentage untouched.
+- Added UTC timezone labels to fetched dates and made long source URLs truncate to one clickable line.
+- Reworked blockchain rows so only Checky-managed sources generate a Solana explorer record, while unavailable fetched data now renders as `–`.
+- Verified the metadata update with `npm run build`, which completed successfully.

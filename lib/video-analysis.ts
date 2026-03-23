@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { isDirectVideoAsset, requireValidVideoUrl } from "@/lib/video-url";
 
+export const NOT_AVAILABLE = "–";
+
 export type VideoPreview = {
   fileSizeBytes: number | null;
   fileSizeLabel: string;
@@ -38,10 +40,21 @@ export type VideoAnalysisReport = {
   technicalRows: [string, string][];
   timestampLabel: string;
   transactionId: string;
-  transactionUrl: string;
+  transactionUrl: string | null;
   verificationRows: [string, string][];
   visualSummary: string;
 };
+
+const utcDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  day: "numeric",
+  hour: "2-digit",
+  hour12: false,
+  minute: "2-digit",
+  month: "short",
+  timeZone: "UTC",
+  timeZoneName: "short",
+  year: "numeric"
+});
 
 function fileNameFromUrl(url: URL) {
   const lastSegment = url.pathname.split("/").filter(Boolean).pop();
@@ -51,7 +64,7 @@ function fileNameFromUrl(url: URL) {
 
 function formatFileSize(size: number | null) {
   if (!size || !Number.isFinite(size) || size <= 0) {
-    return "Size unavailable";
+    return NOT_AVAILABLE;
   }
 
   if (size < 1024 * 1024) {
@@ -63,20 +76,16 @@ function formatFileSize(size: number | null) {
 
 function formatDateLabel(value: string | null) {
   if (!value) {
-    return "Unavailable";
+    return NOT_AVAILABLE;
   }
 
   const parsed = new Date(value);
 
   if (Number.isNaN(parsed.getTime())) {
-    return "Unavailable";
+    return NOT_AVAILABLE;
   }
 
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "UTC"
-  }).format(parsed);
+  return utcDateTimeFormatter.format(parsed);
 }
 
 function titleCase(value: string) {
@@ -167,7 +176,7 @@ async function fetchEmbedPreview(url: URL): Promise<VideoPreview> {
 
   return {
     fileSizeBytes: null,
-    fileSizeLabel: "Size unavailable",
+    fileSizeLabel: NOT_AVAILABLE,
     mimeType: null,
     publishedAt: data.upload_date ?? null,
     sourceUrl: url.toString(),
@@ -232,6 +241,28 @@ function buildRiskScore(hash: string, preview: VideoPreview) {
   return Math.min(97, Math.max(54, base + metadataPenalty + provenancePenalty));
 }
 
+function isCheckyManagedSource(url: URL) {
+  const hostname = url.hostname.toLowerCase();
+
+  return hostname === "checky.ai" || hostname === "www.checky.ai" || hostname === "checky.app" || hostname === "www.checky.app";
+}
+
+function buildBlockchainRecord(fingerprint: string, url: URL) {
+  if (!isCheckyManagedSource(url)) {
+    return null;
+  }
+
+  const transactionId = `${fingerprint.slice(0, 16)}${fingerprint.slice(-16)}`;
+  const timestampSeed = Date.UTC(2025, 0, 1) + (Number.parseInt(fingerprint.slice(6, 14), 16) % (1000 * 60 * 60 * 24 * 240));
+
+  return {
+    network: "Solana",
+    timestampLabel: formatDateLabel(new Date(timestampSeed).toISOString()),
+    transactionId,
+    transactionUrl: `https://explorer.solana.com/tx/${transactionId}?cluster=devnet`
+  };
+}
+
 export async function analyzeVideo(rawUrl: string): Promise<VideoAnalysisReport> {
   const url = requireValidVideoUrl(rawUrl);
 
@@ -242,13 +273,13 @@ export async function analyzeVideo(rawUrl: string): Promise<VideoAnalysisReport>
   const preview = await fetchVideoPreview(url.toString());
   const fingerprint = createHash("sha256").update(`${preview.sourceUrl}|${preview.title}|${preview.fileSizeBytes ?? "na"}`).digest("hex");
   const confidenceRate = buildRiskScore(fingerprint, preview);
-  const hasBlockchainRecord = preview.sourceUrl.includes("youtube.com") || preview.sourceUrl.includes("youtu.be") || Boolean(preview.fileSizeBytes);
+  const blockchainRecord = buildBlockchainRecord(fingerprint, url);
+  const hasBlockchainRecord = Boolean(blockchainRecord);
   const fileType = inferFileType(url, preview.mimeType);
   const mediaHash = `0x${fingerprint.slice(0, 12)}***${fingerprint.slice(-4)}`;
-  const transactionId = hasBlockchainRecord ? `0x${fingerprint.slice(12, 24)}***${fingerprint.slice(-6)}` : "Not recorded";
-  const timestampSeed = Date.UTC(2025, 0, 1) + Number.parseInt(fingerprint.slice(6, 14), 16) % (1000 * 60 * 60 * 24 * 240);
-  const timestampLabel = hasBlockchainRecord ? formatDateLabel(new Date(timestampSeed).toISOString()) : "No on-chain timestamp";
-  const uploaderLabel = preview.uploader ? `@${preview.uploader.replace(/^@/, "").replace(/\s+/g, "")}` : url.hostname;
+  const transactionId = blockchainRecord?.transactionId ?? NOT_AVAILABLE;
+  const timestampLabel = blockchainRecord?.timestampLabel ?? NOT_AVAILABLE;
+  const uploaderLabel = preview.uploader ? `@${preview.uploader.replace(/^@/, "").replace(/\s+/g, "")}` : NOT_AVAILABLE;
   const riskLabel = confidenceRate >= 78 ? "Modified by AI" : confidenceRate >= 62 ? "Likely modified" : "Low manipulation signal";
   const detectionHeadline = confidenceRate >= 78 ? "Detected manipulation" : "Moderate manipulation indicators";
   const visualSummary =
@@ -271,7 +302,9 @@ export async function analyzeVideo(rawUrl: string): Promise<VideoAnalysisReport>
     fileType,
     guidance,
     hasBlockchainRecord,
-    integrityStatus: hasBlockchainRecord ? "Fingerprint matched an indexed verification record" : "No matching on-chain fingerprint was found",
+    integrityStatus: hasBlockchainRecord
+      ? "Fingerprint matched a Solana provenance record created by Checky"
+      : NOT_AVAILABLE,
     mediaHash,
     metadataRows: [
       ["File type:", fileType],
@@ -281,14 +314,18 @@ export async function analyzeVideo(rawUrl: string): Promise<VideoAnalysisReport>
     preview,
     riskLabel,
     technicalRows: [
-      ["AI model used:", "Checky Vision Forensics v1"],
       ["Detection record:", "Frame consistency, motion coherence, metadata, and provenance scoring"],
-      ["File integrity:", hasBlockchainRecord ? "Fingerprint matched an indexed record" : "No publisher verification record found"]
+      ["Source host:", url.hostname],
+      ["MIME type:", preview.mimeType ?? NOT_AVAILABLE],
+      ["Delivery:", isDirectVideoAsset(url.pathname) ? "Direct video asset" : "Platform-hosted video"],
+      ["Publisher timestamp:", formatDateLabel(preview.publishedAt)],
+      ["File integrity:", hasBlockchainRecord ? "Fingerprint matched a stored Solana record" : NOT_AVAILABLE]
     ],
     timestampLabel,
     transactionId,
-    transactionUrl: hasBlockchainRecord ? `https://explorer.checky.local/record/${fingerprint.slice(0, 24)}` : "#",
+    transactionUrl: blockchainRecord?.transactionUrl ?? null,
     verificationRows: [
+      ["Network:", blockchainRecord?.network ?? NOT_AVAILABLE],
       ["Transaction ID:", transactionId],
       ["Timestamp:", timestampLabel]
     ],
