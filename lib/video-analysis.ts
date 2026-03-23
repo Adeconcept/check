@@ -125,6 +125,21 @@ function placeholderThumbnail(title: string) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
+function buildFallbackPreview(url: URL): VideoPreview {
+  const title = fileNameFromUrl(url);
+
+  return {
+    fileSizeBytes: null,
+    fileSizeLabel: NOT_AVAILABLE,
+    mimeType: null,
+    publishedAt: null,
+    sourceUrl: url.toString(),
+    thumbnailUrl: placeholderThumbnail(title),
+    title,
+    uploader: url.hostname
+  };
+}
+
 async function fetchDirectVideoPreview(url: URL): Promise<VideoPreview> {
   const response = await fetch(url, {
     method: "HEAD",
@@ -322,7 +337,11 @@ export async function fetchVideoPreview(rawUrl: string) {
     throw new Error("Invalid video URL.");
   }
 
-  return isDirectVideoAsset(url.pathname) ? fetchDirectVideoPreview(url) : fetchEmbedPreview(url);
+  try {
+    return isDirectVideoAsset(url.pathname) ? await fetchDirectVideoPreview(url) : await fetchEmbedPreview(url);
+  } catch {
+    return buildFallbackPreview(url);
+  }
 }
 
 function isCheckyManagedSource(url: URL) {

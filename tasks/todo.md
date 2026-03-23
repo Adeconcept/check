@@ -1,13 +1,11 @@
-# Better Analysis Pipeline Plan
+# Homepage Preview Reliability Plan
 
-- [x] Split the analysis flow into explicit source-access and verification states instead of a single report verdict path.
-- [x] Surface what Checky can actually retrieve from a link: preview, playback access, media-byte access, provenance, and next analysis step.
-- [x] Update the report and progress UI so they explain the real pipeline needed for future forensic analysis.
-- [x] Build the project to verify the better analysis pipeline update, then commit and push the completed feature.
+- [x] Make preview generation fail safe so any valid public URL still produces a fallback preview card.
+- [x] Surface loading and preview-fetch errors in the homepage form so valid links do not look unresponsive.
+- [x] Build the project to verify the homepage preview reliability update, then commit and push the completed feature.
 
 # Review
 
-- Added an explicit source-access pipeline so Checky now reports whether it has direct media bytes, embedded playback only, or metadata only.
-- Exposed the next required analysis step in the report instead of pretending the current build already has forensic verification.
-- Updated the loading and report copy so the system explains the truthful analysis path for social links.
-- Verified the better analysis pipeline update with `npm run build`, which completed successfully.
+- Added a guaranteed fallback preview path so valid public links still render a preview card even when metadata fetching fails.
+- Exposed a visible loading/error message in the homepage form so links no longer appear to do nothing while preview work is happening.
+- Verified the homepage preview reliability update with `npm run build`, which completed successfully.

@@ -103,6 +103,12 @@ export function AnalyzeUrlForm() {
     router.push(`/screens/analyzing?url=${encodeURIComponent(validation.sanitized)}`);
   }
 
+  const feedbackMessage = !validation.isValid && inputValue
+    ? validation.reason || previewError
+    : isLoadingPreview
+      ? "Fetching video preview..."
+      : previewError;
+
   return (
     <form className="analyze-form" noValidate onSubmit={handleSubmit}>
       <div className="analyze-bar" style={preview ? { borderColor: "#da5678" } : undefined}>
@@ -127,9 +133,9 @@ export function AnalyzeUrlForm() {
           Analyze
         </button>
       </div>
-      {!validation.isValid && inputValue ? (
+      {feedbackMessage ? (
         <div aria-live="polite" className="analyze-feedback">
-          {validation.reason || previewError}
+          {feedbackMessage}
         </div>
       ) : null}
       {preview ? (
