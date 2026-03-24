@@ -27,6 +27,10 @@ export function normalizeEmail(value: string) {
   return value.trim().toLowerCase();
 }
 
+export function sanitizeEmailInput(value: string) {
+  return value.replace(/\s+/g, "").replace(/[^\w.!#$%&'*+/=?^`{|}~@-]/g, "");
+}
+
 export function isValidEmail(value: string) {
   return EMAIL_PATTERN.test(normalizeEmail(value));
 }

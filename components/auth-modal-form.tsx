@@ -10,6 +10,7 @@ import {
   isValidPassword,
   normalizeEmail,
   normalizeUsername,
+  sanitizeEmailInput,
   validateUsername
 } from "@/lib/auth-validation";
 
@@ -157,7 +158,7 @@ export function AuthModalForm({
         usernameAvailability.state === "available")
     : loginIdentityValid && passwordValid;
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setEmailTouched(true);
@@ -212,9 +213,9 @@ export function AuthModalForm({
                 inputMode="email"
                 label="Email"
                 onBlur={() => setEmailTouched(true)}
-                onChange={(value) => setEmail(value.replace(/\s+/g, ""))}
+                onChange={(value) => setEmail(sanitizeEmailInput(value))}
                 placeholder="e.g johndoe@gmail.com"
-                type="email"
+                type="text"
                 value={email}
               />
               <TextField
