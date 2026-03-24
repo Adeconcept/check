@@ -87,9 +87,11 @@ export async function CheckyScreen({
   }
 
   if (mode === "verify-email") {
+    const verificationEmail = readSearchParam(searchParams?.email);
+
     return (
-      <BaseScreen topActionLabel="Help?" showHeroOrbit>
-        <VerifyEmailState />
+      <BaseScreen topActionLabel="Help?">
+        <VerifyEmailState email={verificationEmail} />
       </BaseScreen>
     );
   }
@@ -792,13 +794,17 @@ function ShareIcon({ label, glyph }: { label: string; glyph: string }) {
   );
 }
 
-function VerifyEmailState() {
+function VerifyEmailState({ email }: { email: string | null }) {
   return (
     <main className="verify-shell">
       <div className="verify-card">
         <div className="mail-icon" aria-hidden="true" />
         <h1 className="verify-title">Verify your email</h1>
-        <p className="verify-subtitle">We sent a mail to the email you provided to verify your email.</p>
+        <p className="verify-subtitle">
+          {email
+            ? `We sent a mail to ${email} to verify your email.`
+            : "We sent a mail to the email you provided to verify your email."}
+        </p>
       </div>
     </main>
   );

@@ -39,7 +39,6 @@ export function AuthModalForm({
     : closeHref === "/" ? "/?modal=get-started" : "/screens/signup-empty";
   const switchPrefix = isSignup ? "Have an account?" : "New to checky?";
   const switchAction = isSignup ? "Log in" : "Create account";
-  const successHref = isSignup ? "/screens/verify-email" : "/";
 
   const [email, setEmail] = useState(filled ? "johndoe@gmail.com" : "");
   const [username, setUsername] = useState(filled && isSignup ? "johndoe" : "");
@@ -171,7 +170,10 @@ export function AuthModalForm({
     }
 
     setIsSubmitting(true);
-    router.push(successHref);
+    const targetHref = isSignup
+      ? `/screens/verify-email?email=${encodeURIComponent(normalizedEmail)}`
+      : "/";
+    router.push(targetHref);
   }
 
   return (
@@ -207,9 +209,10 @@ export function AuthModalForm({
               <TextField
                 autoComplete="email"
                 error={emailError}
+                inputMode="email"
                 label="Email"
                 onBlur={() => setEmailTouched(true)}
-                onChange={setEmail}
+                onChange={(value) => setEmail(value.replace(/\s+/g, ""))}
                 placeholder="e.g johndoe@gmail.com"
                 type="email"
                 value={email}
@@ -330,6 +333,7 @@ function TextField({
   error,
   hint,
   hintTone = "muted",
+  inputMode,
   label,
   onBlur,
   onChange,
@@ -343,6 +347,7 @@ function TextField({
   error?: string | null;
   hint?: string | null;
   hintTone?: "error" | "muted" | "success";
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   label: string;
   onBlur?: () => void;
   onChange: (value: string) => void;
@@ -364,6 +369,7 @@ function TextField({
           autoCapitalize="none"
           autoComplete={autoComplete}
           autoCorrect="off"
+          inputMode={inputMode}
           onBlur={onBlur}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
